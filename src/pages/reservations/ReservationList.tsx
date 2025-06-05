@@ -1,45 +1,78 @@
 import { useNavigate } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
-import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import SectionCard from '../../components/ui/SectionCard';
+import { Table, Space } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import type { Reservation } from '../../types/reservation';
 
 const ReservationList = () => {
   const { reservations, deleteReservation } = useReservations();
   const navigate = useNavigate();
 
+  const columns: ColumnsType<Reservation> = [
+    {
+      title: '여행 제목',
+      dataIndex: 'title',
+      key: 'title',
+      render: (text: string, record: Reservation) => <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/reservations/${record.id}`)}>{text}</span>,
+    },
+    {
+      title: '여행 기간',
+      dataIndex: 'duration',
+      key: 'duration',
+    },
+    {
+      title: '여행 지역',
+      dataIndex: 'region',
+      key: 'region',
+    },
+    {
+      title: '미팅 일자',
+      dataIndex: 'meetingDate',
+      key: 'meetingDate',
+    },
+    {
+      title: '담당자',
+      dataIndex: 'manager',
+      key: 'manager',
+    },
+    {
+      title: '동작',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <Button color="info" onClick={() => navigate(`/reservations/${record.id}`)}>
+            상세
+          </Button>
+          <Button color="secondary" onClick={() => navigate(`/reservations/${record.id}/edit`)}>
+            수정
+          </Button>
+          <Button color="danger" onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) deleteReservation(record.id); }}>
+            삭제
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-primary">예약 목록</h2>
-        <Button onClick={() => navigate('/reservations/create')} color="primary">
-          예약 등록
-        </Button>
-      </div>
-      <div className="grid gap-6">
-        {reservations.map((r) => (
-          <Card key={r.id}>
-            <div className="flex justify-between items-center">
-              <div>
-                <div className="text-xl font-semibold text-primary">{r.title}</div>
-                <div className="text-sm text-secondary mt-1">{r.duration} | {r.region}</div>
-                <div className="text-sm text-gray-500 mt-1">미팅: {r.meetingDate} {r.meetingTime} @ {r.meetingPlace}</div>
-                <div className="text-sm text-gray-400 mt-1">담당자: {r.manager}</div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button color="info" className="w-20" onClick={() => navigate(`/reservations/${r.id}`)}>
-                  상세
-                </Button>
-                <Button color="secondary" className="w-20" onClick={() => navigate(`/reservations/${r.id}/edit`)}>
-                  수정
-                </Button>
-                <Button color="danger" className="w-20" onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) deleteReservation(r.id); }}>
-                  삭제
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+    <div className="max-w-4xl mx-auto p-6 bg-lightViolet min-h-screen">
+      <SectionCard label="예약목록">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-primary">예약 목록</h2>
+          <Button onClick={() => navigate('/reservations/create')} color="primary">
+            예약 등록
+          </Button>
+        </div>
+        <Table
+          columns={columns}
+          dataSource={reservations.map(r => ({ ...r, key: r.id }))}
+          pagination={{ pageSize: 10 }}
+          rowKey="id"
+          className="rounded-lg overflow-hidden border border-lightViolet"
+        />
+      </SectionCard>
     </div>
   );
 };

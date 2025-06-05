@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { CustomerList, CustomerCreate, CustomerDetail } from './pages/customers';
-import { ScheduleList, ScheduleCreate, ScheduleDetail } from './pages/schedules';
+import { ScheduleList, ScheduleCreate, ScheduleDetail, ScheduleEdit } from './pages/schedules';
 import { Dashboard } from './pages/dashboard';
 import { ReservationList, ReservationCreate, ReservationDetail, ReservationEdit } from './pages/reservations';
 import { useState } from 'react'
@@ -24,6 +24,7 @@ function App() {
           <Route path="/schedules" element={<ScheduleList />} />
           <Route path="/schedules/create" element={<ScheduleCreate />} />
           <Route path="/schedules/:id" element={<ScheduleDetail />} />
+          <Route path="/schedules/:id/edit" element={<ScheduleEdit />} />
           <Route path="/reservations" element={<ReservationList />} />
           <Route path="/reservations/create" element={<ReservationCreate />} />
           <Route path="/reservations/:id" element={<ReservationDetail />} />

@@ -1,12 +1,13 @@
-import type { InputHTMLAttributes } from 'react';
+import { Input as AntdInput, InputProps as AntdInputProps } from 'antd';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends AntdInputProps {
   className?: string;
 }
 
 const Input = ({ className = '', ...props }: InputProps) => (
-  <input
-    className={`w-full border border-lightViolet rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-purple-900 placeholder-purple-300 ${className}`}
+  <AntdInput
+    className={className}
+    style={{ borderColor: '#D1C4E9', color: '#722ED1' }} // lightViolet, secondary 컬러
     {...props}
   />
 );
