@@ -1,3 +1,14 @@
+## 프로젝트 개요
+
+# 💻 React + TypeScript + Vite + MariaDB 개발 규칙
+
+# React 프론트엔드에서는 이 API를 호출하여 데이터를 주고받는 방식
+
+# UI Tailwind CSS 프레임워크 사용
+
+# MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
+
+
 # 여행사 CRM 프로젝트 폴더 구조
 
 ```

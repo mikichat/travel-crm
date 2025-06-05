@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행 안내문 도우미 (스타일 확장 및 리팩토링)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'BMHANNAPro';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'BinggraeSamanco-Light';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/BinggraeSamanco-Light.woff2') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+        }
+
+        :root {
+            --main-color: #7E57C2;
+            --light-main-color: #D1C4E9;
+            --accent-orange: #FF7043;
+            --info-blue: #42A5F5;
+            --danger-red: #EF5350;
+            --font-title: 'BMHANNAPro', sans-serif;
+            --font-body: 'BinggraeSamanco-Light', sans-serif;
+            --header-bg-image: url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            --header-bg-position: center;
+            --header-bg-size: cover;
+            --header-bg-opacity: 0.15;
+            --header-mix-blend-mode: luminosity;
+        }
+
+        body { font-family: var(--font-body); background-color: #F3E5F5; color: #4A148C; line-height: 1.7; letter-spacing: 0.02em; }
+        .container-wrapper { max-width: 800px; margin-left: auto; margin-right: auto; background-color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; }
+        .document-title-header { background-color: var(--main-color); color: white; padding: 1.5rem; text-align: center; font-size: 2.2rem; margin-bottom: 2rem; position: relative; overflow: hidden; min-height: 120px; display: flex; align-items: center; justify-content: center; print-color-adjust: exact !important; letter-spacing: 0.05em; border-top-left-radius: 8px; border-top-right-radius: 8px;}
+        .document-title-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: var(--header-bg-image); background-position: var(--header-bg-position); background-size: var(--header-bg-size); opacity: var(--header-bg-opacity); mix-blend-mode: var(--header-mix-blend-mode); z-index: 0; transition: background-image 0.5s ease-in-out; print-color-adjust: exact !important; }
+        .document-title-header > * { position: relative; z-index: 1; }
+        .styled-section { background-color: white; margin-bottom: 2rem; border: 1px solid #E0E0E0; display: flex; position: relative; padding-top: 1.5em; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.06); print-color-adjust: exact !important; }
+        .section-v-label { writing-mode: vertical-rl; text-orientation: upright; background-color: var(--main-color); color: white; padding: 1rem 0.5rem; text-align: center; font-size: 1.1em; flex-shrink: 0; min-width: 2.8em; box-sizing: border-box; border-top-left-radius: 3px; border-bottom-left-radius: 3px; font-family: var(--font-title); print-color-adjust: exact !important; }
+        .section-v-label span { display: block; line-height: 1.3; margin: 0.1em 0; }
+        .section-content { padding: 1.2rem 1.5rem; width: 100%; font-size: 1rem; font-family: var(--font-body); }
+        .content-title-on-border { position: absolute; top: -0.8em; left: calc(2.8em + 0.5rem + 15px); background-color: white; padding: 0 0.6em; font-size: 1.2rem; color: var(--main-color); z-index: 10; white-space: nowrap; letter-spacing: 0.05em; font-family: var(--font-title); }
+        .styled-section.no-v-label .content-title-on-border { left: 15px; }
+        .info-grid { display: grid; grid-template-columns: auto 1fr; gap: 0.7rem 1.2rem; align-items: baseline; }
+        .info-grid dt { color: #6A1B9A; white-space: nowrap; font-size: 0.95rem; font-family: var(--font-title); }
+        .info-grid dd { margin-left: 0; color: #4A148C; font-size: 0.95rem; font-family: var(--font-body); word-break: break-word; }
+        .info-grid dd .text-blue { color: var(--info-blue); }
+        .info-grid dd .text-red { color: var(--danger-red); font-family: var(--font-title); }
+        input[type="text"], input[type="date"], input[type="time"], input[type="file"], textarea, select, input[type="color"] { width: 100%; padding: 0.7rem; border: 1px solid #CE93D8; border-radius: 3px; font-size: 0.95rem; font-family: var(--font-body); color: #4A148C; background-color: white; }
+        input[type="file"] { padding: 0.4rem; }
+        input[type="color"] { padding: 0.2rem; height: 2.5rem; }
+        select { appearance: menulist; -webkit-appearance: menulist; }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="time"]:focus, input[type="file"]:focus, textarea:focus, select:focus, input[type="color"]:focus { border-color: var(--main-color); box-shadow: 0 0 0 3px var(--light-main-color); outline: none; }
+        label { display: block; margin-bottom: 0.4rem; color: #6A1B9A; font-size: 1rem; font-family: var(--font-title); }
+        .form-group-grid { display: grid; grid-template-columns: 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+        .form-group-grid-2col { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+       
+        .field-style-controls { display: flex; gap: 0.5rem; margin-top: 0.3rem; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .field-style-controls select, .field-style-controls input[type="color"], .field-style-controls label { font-size: 0.75rem; padding: 0.2rem 0.3rem; border: 1px solid #D1C4E9; border-radius: 3px;}
+        .field-style-controls input[type="checkbox"] { margin-right: 0.2rem; transform: scale(0.9);}
+        .field-style-controls label { padding: 0.3rem 0.4rem; display: inline-flex; align-items: center; cursor: pointer; background-color: #F3E5F5; color: var(--main-color); }
+        .field-style-controls label:hover { background-color: #E1BEE7; }
+        .field-style-controls input[type="color"] { padding: 0.1rem; height: 1.8rem; width: 4rem; }
+
+
+        .preview-footer { text-align: center; margin-top: 1rem; padding: 1.5rem 0; border-top: 1px solid #E0E0E0; }
+        .preview-footer .company-logo-preview img { max-height: 60px; max-width: 180px; margin-bottom: 0.5rem; object-fit: contain; }
+        .preview-footer .logo-icon { font-size: 2.8rem; color: var(--accent-orange); margin-bottom: 0.3rem; }
+        .preview-footer .logo-text { font-size: 1.3rem; color: #4A148C; letter-spacing: 0.05em; font-family: var(--font-title); }
+        .preview-footer .logo-subtext { font-size: 0.9rem; color: #6A1B9A; letter-spacing: 0.03em; font-family: var(--font-body); }
+        .action-button { background-color: var(--main-color); color: white; padding: 0.75rem 1.5rem; border-radius: 4px; border: none; cursor: pointer; transition: background-color 0.3s, box-shadow 0.3s; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: 0 1px 2px rgba(0,0,0,0.1); letter-spacing: 0.05em; font-family: var(--font-title); }
+        .action-button:hover { background-color: #4A148C; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .action-button.secondary { background-color: #AB47BC; }
+        .action-button.secondary:hover { background-color: #8E24AA; }
+        .file-input-label { background-color: #BA68C8; color: white; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer; transition: background-color 0.3s, box-shadow 0.3s; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-family: var(--font-title); letter-spacing: 0.05em; }
+        .file-input-label:hover { background-color: #9C27B0; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        #dataFileUpload { display: none; }
+        .button-container { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.8rem; }
+        #formTitleDisplay, #form-container h3 { font-family: var(--font-title); color: var(--main-color);}
+        .company-contact-section { padding: 1rem; background-color: #F3E5F5; border-radius: 4px; margin-top: 1.5rem; }
+        .company-contact-section dt { font-family: var(--font-title); color: var(--main-color); }
+        .company-contact-section dd { font-family: var(--font-body); margin-bottom: 0.25rem;}
+        .company-contact-section i { margin-right: 0.5em; color: var(--main-color); }
+        .map-embed-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-top: 0.5rem; border: 1px solid #ddd; border-radius: 4px;}
+        .map-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .document-title-header, .content-title-on-border, #formTitleDisplay, #form-container h3, label, .action-button, .preview-footer .logo-text { font-family: var(--font-title); font-weight: normal; }
+        .section-content, .info-grid dd, textarea, input, .preview-footer .logo-subtext, body p { font-family: var(--font-body); font-weight: 300; }
+       
+        .text-is-bold { font-weight: bold !important; }
+        .text-is-highlighted { background-color: #FFF9C4 !important; padding: 0.1em 0.2em; border-radius: 3px; display: inline; /* 인라인 요소로 처리 */}
+
+
+        @media (min-width: 640px) {
+            .form-group-grid-2col { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 767px) {
+            body { padding: 0.5rem; font-size: 14px; }
+            .container-wrapper { margin: 0; border-radius: 0; box-shadow: none; }
+            .document-title-header { font-size: 1.6rem; padding: 0.8rem; min-height: 80px; margin-bottom: 1rem; }
+            #form-container, #documentPreviewContainer { padding: 0.8rem; }
+            .styled-section { flex-direction: column; padding-top: 0.5em; margin-bottom: 1.5rem; }
+            .section-v-label { writing-mode: horizontal-tb; text-orientation: mixed; transform: none; min-width: auto; width: 100%; padding: 0.4rem 0.8rem; font-size: 0.9rem; border-radius: 3px 3px 0 0; justify-content: flex-start; display: block; text-align: left;}
+            .section-v-label span { display: inline; margin: 0 0.05em; line-height: 1.2; }
+            .section-content { padding: 0.8rem; font-size: 0.9rem;}
+            .content-title-on-border { position: static; transform: none; background-color: transparent; padding: 0; margin-bottom: 0.6rem; font-size: 1rem; border-bottom: 2px solid var(--light-main-color); padding-bottom: 0.2rem; left: auto !important;}
+            .form-group-grid { grid-template-columns: 1fr; }
+            .info-grid { gap: 0.4rem 0.6rem; }
+            .info-grid dt, .info-grid dd { font-size: 0.85rem; }
+            label, input, textarea, .action-button, .file-input-label, select, input[type="color"] { font-size: 0.85rem; }
+            .field-style-controls select, .field-style-controls input[type="color"], .field-style-controls label { font-size: 0.7rem; }
+            .action-button, .file-input-label { padding: 0.5rem 0.8rem; }
+            .button-container { justify-content: center; }
+            .map-embed-wrapper { padding-bottom: 75%; }
+        }
+        .no-print {}
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="p-0 sm:p-4 md:p-8">
+    <div class="container-wrapper">
+        <div id="form-container" class="p-6 md:p-8 no-print">
+            <div class="text-center mb-8">
+                <h1 id="formTitleDisplay" class="text-3xl">여행 안내문 도우미</h1>
+                <p class="mt-2 text-md" style="font-family: var(--font-body); color: var(--main-color); opacity: 0.8;">세련된 바이올렛 스타일로 안내문을 작성하세요.</p>
+            </div>
+
+            <form id="documentForm">
+                <div class="mb-8 p-6 border rounded-md" style="background-color: #FFFFFF; border-color: #E0E0E0;">
+                    <h3 class="text-xl mb-3">안내문 제목 및 헤더</h3>
+                    <div class="form-group-grid-2col">
+                        <div>
+                            <label for="documentTitleInput">안내문 제목</label>
+                            <input type="text" id="documentTitleInput" name="documentTitleInput" placeholder="예: 꿈결같은 바이올렛 여정">
+                        </div>
+                        <div>
+                            <label for="headerImageUrlInput">헤더 배경 이미지 URL (선택 사항)</label>
+                            <input type="text" id="headerImageUrlInput" name="headerImageUrlInput" placeholder="온라인 이미지 URL">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label for="headerImageFileInput">헤더 배경 이미지 파일 선택 (선택 사항)</label>
+                        <input type="file" id="headerImageFileInput" name="headerImageFileInput" accept="image/*">
+                        <p class="text-xs mt-1" style="font-family: var(--font-body); color: var(--main-color);">파일 선택 시 URL 입력보다 우선 적용됩니다.</p>
+                    </div>
+                </div>
+
+                <div class="styled-section">
+                    <div class="section-v-label">기본안내</div>
+                    <div class="section-content">
+                        <div class="form-group-grid-2col">
+                            <div>
+                                <label for="tripDuration">여행 기간</label>
+                                <input type="text" id="tripDuration" name="tripDuration" placeholder="예: 2025년 10월 01일 ~ 10월 07일 (6박 7일)">
+                                <div class="field-style-controls">
+                                    <select id="tripDurationFont" name="tripDurationFont"><option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option></select>
+                                    <select id="tripDurationFontSize" name="tripDurationFontSize"><option value="">기본크기</option><option value="0.8em">작게</option><option value="1.2em">크게</option><option value="1.5em">더크게</option></select>
+                                    <label><input type="checkbox" id="tripDurationBold" name="tripDurationBold">굵게</label>
+                                    <label><input type="checkbox" id="tripDurationHighlight" name="tripDurationHighlight">강조배경</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="tripRegion">여행 지역</label>
+                                <input type="text" id="tripRegion" name="tripRegion" placeholder="예: 프랑스 파리, 스위스 인터라켄">
+                                <div class="field-style-controls">
+                                    <select id="tripRegionFont" name="tripRegionFont"><option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option></select>
+                                    <select id="tripRegionFontSize" name="tripRegionFontSize"><option value="">기본크기</option><option value="0.8em">작게</option><option value="1.2em">크게</option><option value="1.5em">더크게</option></select>
+                                    <label><input type="checkbox" id="tripRegionBold" name="tripRegionBold">굵게</label>
+                                    <label><input type="checkbox" id="tripRegionHighlight" name="tripRegionHighlight">강조배경</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="meetingDate">미팅 일자</label>
+                                <input type="date" id="meetingDate" name="meetingDate">
+                                <div class="field-style-controls">
+                                    <select id="meetingDateFont" name="meetingDateFont"><option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option></select>
+                                    <select id="meetingDateFontSize" name="meetingDateFontSize"><option value="">기본크기</option><option value="0.8em">작게</option><option value="1.2em">크게</option><option value="1.5em">더크게</option></select>
+                                    <label><input type="checkbox" id="meetingDateBold" name="meetingDateBold">굵게</label>
+                                    <label><input type="checkbox" id="meetingDateHighlight" name="meetingDateHighlight">강조배경</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="meetingTime">미팅 시간</label>
+                                <input type="time" id="meetingTime" name="meetingTime">
+                                <div class="field-style-controls">
+                                    <select id="meetingTimeFont" name="meetingTimeFont"><option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option></select>
+                                    <select id="meetingTimeFontSize" name="meetingTimeFontSize"><option value="">기본크기</option><option value="0.8em">작게</option><option value="1.2em">크게</option><option value="1.5em">더크게</option></select>
+                                    <label><input type="checkbox" id="meetingTimeBold" name="meetingTimeBold">굵게</label>
+                                    <label><input type="checkbox" id="meetingTimeHighlight" name="meetingTimeHighlight">강조배경</label>
+                                </div>
+                            </div>
+                           
+                            <div class="col-span-1 sm:col-span-2">
+                                <label for="meetingPlace">미팅 장소 (텍스트)</label>
+                                <input type="text" id="meetingPlace" name="meetingPlace" placeholder="예: 인천국제공항 제1여객터미널 H카운터 앞">
+                                <div class="field-style-controls">
+                                    <select id="meetingPlaceFont" name="meetingPlaceFont"><option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option></select>
+                                    <select id="meetingPlaceFontSize" name="meetingPlaceFontSize"><option value="">기본크기</option><option value="0.8em">작게</option><option value="1.2em">크게</option><option value="1.5em">더크게</option></select>
+                                    <label><input type="checkbox" id="meetingPlaceBold" name="meetingPlaceBold">굵게</label>
+                                    <label><input type="checkbox" id="meetingPlaceHighlight" name="meetingPlaceHighlight">강조배경</label>
+                                </div>
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label for="meetingMapInfo">미팅 장소 지도 정보 (URL 또는 Embed 코드)</label>
+                                <textarea id="meetingMapInfo" name="meetingMapInfo" rows="3" placeholder="예: <iframe src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3162...'></iframe> 또는 지도 서비스 공유 URL"></textarea>
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label for="departureInfoText">항공 출발 정보 (날짜/시간/편명)</label>
+                                <input type="text" id="departureInfoText" name="departureInfoText" placeholder="예: 2025-10-01 / 14:30 / KE901">
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label for="arrivalInfoText">항공 도착 정보 (날짜/시간/편명)</label>
+                                <input type="text" id="arrivalInfoText" name="arrivalInfoText" placeholder="예: 2025-10-01 / 18:50 / KE901 (현지시간 기준)">
+                            </div>
+                            <div class="col-span-1 sm:col-span-2">
+                                <label for="tripManager">담당자</label>
+                                <input type="text" id="tripManager" name="tripManager" placeholder="김철수 (연락처: 010-1234-5678)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="styled-section">
+                    <div class="section-v-label">준비사항</div>
+                    <div class="section-content">
+                        <div class="form-group-grid-2col">
+                            <div> <label for="importantDocs">필수 서류</label> <input type="text" id="importantDocs" name="importantDocs" placeholder="여권 (만료일 6개월 이상), 항공권 E-티켓"> </div>
+                            <div> <label for="currencyInfo">환전 및 결제</label> <input type="text" id="currencyInfo" name="currencyInfo" placeholder="현지 통화 (예: 유로), 국제 신용카드"> </div>
+                        </div>
+                        <div>
+                            <label for="otherItems">개인 준비물</label>
+                            <div class="field-style-controls">
+                                <select id="otherItemsFont" name="otherItemsFont">
+                                    <option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option><option value="Times New Roman, serif">Times</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option>
+                                </select>
+                                <input type="color" id="otherItemsColor" name="otherItemsColor" value="#4A148C">
+                            </div>
+                            <textarea id="otherItems" name="otherItems" rows="3" placeholder="상비약, 편안한 신발, 어댑터 (220V), 카메라, 세면도구, 우산, 선크림 등"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="styled-section">
+                    <div class="section-v-label">참고사항</div>
+                    <div class="section-content">
+                        <div>
+                            <label for="tripMemo">현지 정보 및 유의사항</label>
+                            <div class="field-style-controls">
+                                <select id="tripMemoFont" name="tripMemoFont">
+                                    <option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option><option value="Times New Roman, serif">Times</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option>
+                                </select>
+                                <input type="color" id="tripMemoColor" name="tripMemoColor" value="#4A148C">
+                            </div>
+                            <textarea id="tripMemo" name="tripMemo" rows="4" placeholder="예: 현지 날씨 (평균 기온, 복장 추천), 주요 관광지 정보, 비상 연락망, 여행자 보험 안내, 팁 문화, 대중교통 이용법 등"></textarea>
+                        </div>
+                        <div class="form-group-grid-2col mt-4">
+                            <div> <label for="timeDifference">시차 정보</label> <input type="text" id="timeDifference" name="timeDifference" placeholder="예: 한국보다 8시간 느림 (서머타임 시 7시간)"> </div>
+                            <div> <label for="exchangeRate">참고 환율</label> <input type="text" id="exchangeRate" name="exchangeRate" placeholder="예: 1 EUR = 약 1,450 KRW (변동 가능)"> </div>
+                            <div class="col-span-1 sm:col-span-2"> <label for="voltage">전압 및 플러그</label> <input type="text" id="voltage" name="voltage" placeholder="예: 230V, Type C/F 플러그"> </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="styled-section">
+                    <div class="section-v-label">수화물</div>
+                    <div class="section-content">
+                        <div>
+                            <label for="baggageRules">수화물 규정</label>
+                            <div class="field-style-controls">
+                                <select id="baggageRulesFont" name="baggageRulesFont">
+                                    <option value="BinggraeSamanco-Light, sans-serif">빙그레</option><option value="BMHANNAPro, sans-serif">한나체</option><option value="Arial, sans-serif">Arial</option><option value="Times New Roman, serif">Times</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option>
+                                </select>
+                                <input type="color" id="baggageRulesColor" name="baggageRulesColor" value="#4A148C">
+                            </div>
+                            <textarea id="baggageRules" name="baggageRules" rows="4" placeholder="[항공사명] 위탁수하물: 1인 1개, 각 23kg 이내. 휴대수하물: 1인 1개, 10kg 이내 (가로+세로+높이 합 115cm 이내).\n액체류는 각 100ml 이하 용기에 담아 총 1L 투명 비닐 지퍼백에 보관."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="styled-section">
+                    <div class="section-v-label">회사정보</div>
+                    <div class="section-content">
+                        <div class="form-group-grid-2col">
+                            <div><label for="companyName">회사명</label><input type="text" id="companyName" name="companyName" placeholder="주식회사 꿈의여행"></div>
+                            <div><label for="companyPhone">전화번호</label><input type="text" id="companyPhone" name="companyPhone" placeholder="02-777-1234"></div>
+                            <div><label for="companyEmail">이메일</label><input type="text" id="companyEmail" name="companyEmail" placeholder="contact@dreamtour.com"></div>
+                            <div><label for="companyWebsite">웹사이트</label><input type="text" id="companyWebsite" name="companyWebsite" placeholder="www.dreamtour.com"></div>
+                        </div>
+                        <div class="mt-2"><label for="companyAddress">주소</label><input type="text" id="companyAddress" name="companyAddress" placeholder="서울특별시 종로구 여행길 123"></div>
+                        <div class="mt-4">
+                            <label for="companyLogoFileInput">회사 로고 파일</label>
+                            <input type="file" id="companyLogoFileInput" name="companyLogoFileInput" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container mt-10">
+                    <button type="submit" class="action-button"><i class="fas fa-sync-alt"></i>미리보기 업데이트</button>
+                    <button type="button" id="clearFormButton" class="action-button secondary"><i class="fas fa-undo"></i>양식 초기화</button>
+                    <button type="button" id="downloadDataButton" class="action-button"><i class="fas fa-download"></i>데이터 파일로 저장</button>
+                    <label for="dataFileUpload" class="file-input-label"><i class="fas fa-upload"></i>데이터 파일 불러오기</label>
+                    <input type="file" id="dataFileUpload" accept=".json" class="hidden">
+                </div>
+            </form>
+        </div>
+
+        <div id="documentPreviewContainer" class="p-6 md:p-8 border-t" style="border-color: var(--light-main-color);">
+            <div class="flex items-center justify-between mb-6 no-print">
+                <h2 class="text-xl" style="font-family: var(--font-title);">
+                    <i class="fas fa-file-alt mr-2" style="color: var(--main-color);"></i>생성된 여행 안내문
+                </h2>
+                <button type="button" id="downloadJpgButton" class="action-button">
+                    <i class="fas fa-image mr-2"></i>JPG로 저장
+                </button>
+            </div>
+            <div id="documentOutput" class="document-output bg-white p-0">
+                <p style="color: #6A1B9A; text-align: center; font-family: var(--font-body);">양식에 내용을 입력하고 "미리보기 업데이트" 버튼을 클릭하세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('documentForm');
+            const output = document.getElementById('documentOutput');
+            const headerImageFileInput = document.getElementById('headerImageFileInput');
+            const companyLogoFileInput = document.getElementById('companyLogoFileInput');
+           
+            const clearFormButton = document.getElementById('clearFormButton');
+            const downloadDataButton = document.getElementById('downloadDataButton');
+            const dataFileUploadInput = document.getElementById('dataFileUpload');
+            const downloadJpgButton = document.getElementById('downloadJpgButton');
+           
+            const storageKey = "travelGuide_StyledFields_v1";
+            let currentHeaderImageDataUrl = null;
+            let currentCompanyLogoDataUrl = null;
+
+            // 스타일 적용 대상 필드 및 옵션 정의
+            const stylableFieldsConfig = [
+                { baseId: 'tripDuration', inputType: 'text', hasFont: true, hasFontSize: true, hasBold: true, hasHighlight: true, hasColor: false },
+                { baseId: 'tripRegion', inputType: 'text', hasFont: true, hasFontSize: true, hasBold: true, hasHighlight: true, hasColor: false },
+                { baseId: 'meetingDate', inputType: 'date', hasFont: true, hasFontSize: true, hasBold: true, hasHighlight: true, hasColor: false }, // 미리보기에만 적용
+                { baseId: 'meetingTime', inputType: 'time', hasFont: true, hasFontSize: true, hasBold: true, hasHighlight: true, hasColor: false }, // 미리보기에만 적용
+                { baseId: 'meetingPlace', inputType: 'text', hasFont: true, hasFontSize: true, hasBold: true, hasHighlight: true, hasColor: false },
+                // 기존 텍스트 영역
+                { baseId: 'otherItems', inputType: 'textarea', hasFont: true, hasColor: true, hasFontSize: false, hasBold: false, hasHighlight: false },
+                { baseId: 'tripMemo', inputType: 'textarea', hasFont: true, hasColor: true, hasFontSize: false, hasBold: false, hasHighlight: false },
+                { baseId: 'baggageRules', inputType: 'textarea', hasFont: true, hasColor: true, hasFontSize: false, hasBold: false, hasHighlight: false }
+            ];
+
+            // 스타일 컨트롤 초기화 및 이벤트 리스너 설정 함수
+            function initializeStyleControls() {
+                stylableFieldsConfig.forEach(config => {
+                    const mainInput = document.getElementById(config.baseId);
+                    if (!mainInput) return;
+
+                    const controlsToWatch = [];
+
+                    if (config.hasFont) {
+                        const fontSelect = document.getElementById(`${config.baseId}Font`);
+                        if (fontSelect) controlsToWatch.push(fontSelect);
+                    }
+                    if (config.hasColor) {
+                        const colorInput = document.getElementById(`${config.baseId}Color`);
+                        if (colorInput) controlsToWatch.push(colorInput);
+                    }
+                    if (config.hasFontSize) {
+                        const fontSizeSelect = document.getElementById(`${config.baseId}FontSize`);
+                        if (fontSizeSelect) controlsToWatch.push(fontSizeSelect);
+                    }
+                    if (config.hasBold) {
+                        const boldCheckbox = document.getElementById(`${config.baseId}Bold`);
+                        if (boldCheckbox) controlsToWatch.push(boldCheckbox);
+                    }
+                    if (config.hasHighlight) {
+                        const highlightCheckbox = document.getElementById(`${config.baseId}Highlight`);
+                        if (highlightCheckbox) controlsToWatch.push(highlightCheckbox);
+                    }
+                   
+                    controlsToWatch.forEach(control => {
+                        control.addEventListener('change', () => { // 'input' 대신 'change' 사용 (select, checkbox에 적합)
+                            saveFormDataToLocalStorage();
+                            generateDocument();
+                        });
+                        // color input은 input 이벤트가 더 즉각적일 수 있음
+                        if (control.type === 'color') {
+                            control.addEventListener('input', () => {
+                                saveFormDataToLocalStorage();
+                                generateDocument();
+                            });
+                        }
+                    });
+                });
+            }
+
+
+            function applyTheme(customizations = {}) {
+                if (currentHeaderImageDataUrl) {
+                    document.documentElement.style.setProperty('--header-bg-image', `url('${currentHeaderImageDataUrl}')`);
+                    document.documentElement.style.setProperty('--header-bg-opacity', '0.3');
+                } else if (customizations.headerImageUrlInput && customizations.headerImageUrlInput.trim() !== '') {
+                    document.documentElement.style.setProperty('--header-bg-image', `url('${customizations.headerImageUrlInput.trim()}')`);
+                    document.documentElement.style.setProperty('--header-bg-opacity', '0.25');
+                } else {
+                    document.documentElement.style.setProperty('--header-bg-image', "url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')");
+                    document.documentElement.style.setProperty('--header-bg-opacity', '0.15');
+                }
+            }
+
+            function handleImageFile(file, callback) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) { callback(e.target.result); }
+                    reader.readAsDataURL(file);
+                } else { callback(null); }
+            }
+
+            headerImageFileInput.addEventListener('change', function(event) {
+                handleImageFile(event.target.files[0], (dataUrl) => {
+                    currentHeaderImageDataUrl = dataUrl;
+                    applyTheme(getFormData());
+                    saveFormDataToLocalStorage();
+                    generateDocument();
+                });
+            });
+           
+            companyLogoFileInput.addEventListener('change', function(event) {
+                handleImageFile(event.target.files[0], (dataUrl) => {
+                    currentCompanyLogoDataUrl = dataUrl;
+                    saveFormDataToLocalStorage();
+                    generateDocument();
+                });
+            });
+
+            function getFormData() {
+                const formData = new FormData(form);
+                const data = {};
+                for (const [key, value] of formData.entries()) {
+                    if (key !== 'headerImageFileInput' && key !== 'companyLogoFileInput') {
+                        data[key] = value;
+                    }
+                }
+                data.headerImageDataUrl = currentHeaderImageDataUrl;
+                data.companyLogoDataUrl = currentCompanyLogoDataUrl;
+
+                stylableFieldsConfig.forEach(config => {
+                    if (config.hasFont) data[`${config.baseId}Font`] = document.getElementById(`${config.baseId}Font`)?.value;
+                    if (config.hasColor) data[`${config.baseId}Color`] = document.getElementById(`${config.baseId}Color`)?.value;
+                    if (config.hasFontSize) data[`${config.baseId}FontSize`] = document.getElementById(`${config.baseId}FontSize`)?.value;
+                    if (config.hasBold) data[`${config.baseId}Bold`] = document.getElementById(`${config.baseId}Bold`)?.checked;
+                    if (config.hasHighlight) data[`${config.baseId}Highlight`] = document.getElementById(`${config.baseId}Highlight`)?.checked;
+                });
+                return data;
+            }
+
+            function saveFormDataToLocalStorage() { const data = getFormData(); localStorage.setItem(storageKey, JSON.stringify(data)); }
+           
+            function loadFormDataFromLocalStorage() {
+                const savedData = localStorage.getItem(storageKey);
+                let parsedData = {};
+                if (savedData) {
+                    parsedData = JSON.parse(savedData);
+                    for (const key in parsedData) {
+                        const element = form.elements[key];
+                        if (key === 'headerImageDataUrl' && parsedData[key]) {
+                            currentHeaderImageDataUrl = parsedData[key];
+                        } else if (key === 'companyLogoDataUrl' && parsedData[key]) {
+                            currentCompanyLogoDataUrl = parsedData[key];
+                        } else if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = parsedData[key];
+                            } else {
+                                element.value = parsedData[key];
+                            }
+                        }
+                    }
+                }
+                applyTheme(parsedData);
+            }
+
+            function formatTime(timeStr) { if (!timeStr) return '미입력'; const [hours, minutes] = timeStr.split(':'); return `${hours}시 ${minutes}분`; }
+            function formatDate(dateStr, includeWeekday = true) {
+                if (!dateStr) return '미입력';
+                const date = new Date(dateStr + 'T00:00:00Z');
+                const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Seoul' };
+                if (includeWeekday) {
+                    options.weekday = 'long';
+                }
+                return date.toLocaleDateString('ko-KR', options);
+            }
+            function 안전HTML(str, allowBr = true) {
+                if (typeof str !== 'string') return '';
+                let escaped = str.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+                if (allowBr) {
+                    escaped = escaped.replace(/\n/g, "<br>");
+                }
+                return escaped;
+            }
+
+            function generateMapHtml(mapInfo) {
+                if (!mapInfo || mapInfo.trim() === '') return '';
+                mapInfo = mapInfo.trim();
+                if (mapInfo.toLowerCase().startsWith('<iframe') && mapInfo.toLowerCase().endsWith('</iframe>')) {
+                    let sandboxedIframe = mapInfo;
+                    if (!/sandbox=/i.test(mapInfo)) {
+                        sandboxedIframe = mapInfo.replace(/<iframe/i, '<iframe sandbox="allow-scripts allow-same-origin allow-popups"');
+                    } else {
+                        let existingSandbox = mapInfo.match(/sandbox="([^"]*)"/i)?.[1] || '';
+                        let policies = new Set(existingSandbox.split(' ').filter(s => s));
+                        ['allow-scripts', 'allow-same-origin', 'allow-popups'].forEach(p => policies.add(p));
+                        sandboxedIframe = mapInfo.replace(/sandbox="[^"]*"/i, `sandbox="${Array.from(policies).join(' ')}"`);
+                    }
+                    return `<div class="map-embed-wrapper">${sandboxedIframe}</div>`;
+                } else if (mapInfo.startsWith('http://') || mapInfo.startsWith('https://')) {
+                    return `<p><a href="${안전HTML(mapInfo, false)}" target="_blank" rel="noopener noreferrer" style="color: var(--info-blue); text-decoration: underline;">지도 링크 보기 <i class="fas fa-external-link-alt fa-xs"></i></a></p>`;
+                }
+                return `<p class="text-sm text-gray-600">지도 정보: ${안전HTML(mapInfo)}</p>`;
+            }
+           
+            function getStyledContent(data, config, defaultValue = '미입력') {
+                const baseId = config.baseId;
+                let value = data[baseId] || defaultValue;
+                let styleString = '';
+                let classList = [];
+
+                if (config.hasFont && data[`${baseId}Font`]) styleString += `font-family: ${안전HTML(data[`${baseId}Font`], false)};`;
+                if (config.hasColor && data[`${baseId}Color`]) styleString += `color: ${안전HTML(data[`${baseId}Color`], false)};`;
+                if (config.hasFontSize && data[`${baseId}FontSize`]) styleString += `font-size: ${안전HTML(data[`${baseId}FontSize`], false)};`;
+               
+                if (config.hasBold && data[`${baseId}Bold`]) classList.push('text-is-bold');
+                if (config.hasHighlight && data[`${baseId}Highlight`]) classList.push('text-is-highlighted');
+
+                let displayValue = value;
+                if (config.inputType === 'date' && value !== defaultValue) displayValue = formatDate(value);
+                else if (config.inputType === 'time' && value !== defaultValue) displayValue = formatTime(value);
+                else displayValue = 안전HTML(value, config.inputType === 'textarea'); // textarea는 br 허용
+
+                if (value === defaultValue && defaultValue === '미입력') displayValue = defaultValue;
+
+
+                return `<span style="${styleString}" class="${classList.join(' ')}">${displayValue}</span>`;
+            }
+
+
+            function generateDocument() {
+                const data = getFormData();
+                applyTheme(data);
+                const titleLeftOffset = 'calc(2.8em + 0.5rem + 15px)';
+
+                let companyLogoHtml = '';
+                if (currentCompanyLogoDataUrl) {
+                    companyLogoHtml = `<div class="company-logo-preview"><img src="${currentCompanyLogoDataUrl}" alt="회사 로고"></div>`;
+                } else if (data.companyName) {
+                    companyLogoHtml = `<div class="logo-text">${안전HTML(data.companyName)}</div>`;
+                } else {
+                    companyLogoHtml = `<div class="logo-icon"><i class="fas fa-feather-alt"></i></div>
+                    <div class="logo-text">여행의 품격</div>
+                    <div class="logo-subtext">PREMIUM TRAVEL SERVICE</div>`;
+                }
+
+                let companyInfoHtml = '';
+                if (data.companyName || data.companyAddress || data.companyPhone || data.companyEmail || data.companyWebsite) {
+                    companyInfoHtml = `
+                    <div class="company-contact-section styled-section no-v-label" style="margin-top: 2rem; padding-top: 1.5em;">
+                        <div class="content-title-on-border" style="left: 15px;">여행사 정보</div>
+                        <div class="section-content" style="padding-top: 1rem;"> <dl class="info-grid">`;
+                    if (data.companyName) companyInfoHtml += `<dt><i class="fas fa-building"></i>회사명:</dt><dd>${안전HTML(data.companyName)}</dd>`;
+                    if (data.companyAddress) companyInfoHtml += `<dt><i class="fas fa-map-marker-alt"></i>주 소:</dt><dd>${안전HTML(data.companyAddress)}</dd>`;
+                    if (data.companyPhone) companyInfoHtml += `<dt><i class="fas fa-phone-alt"></i>연락처:</dt><dd>${안전HTML(data.companyPhone)}</dd>`;
+                    if (data.companyEmail) companyInfoHtml += `<dt><i class="fas fa-envelope"></i>이메일:</dt><dd><a href="mailto:${안전HTML(data.companyEmail, false)}" style="color: var(--info-blue); text-decoration: underline;">${안전HTML(data.companyEmail)}</a></dd>`;
+                    if (data.companyWebsite) companyInfoHtml += `<dt><i class="fas fa-globe"></i>웹사이트:</dt><dd><a href="${안전HTML(data.companyWebsite.startsWith('http') ? data.companyWebsite : 'http://' + data.companyWebsite, false)}" target="_blank" rel="noopener noreferrer" style="color: var(--info-blue); text-decoration: underline;">${안전HTML(data.companyWebsite)}</a></dd>`;
+                    companyInfoHtml += `</dl> </div> </div>`;
+                }
+
+                const baggageLabelHtml = '<span>물</span><span>화</span><span>수</span>';
+                const meetingMapDisplayHtml = generateMapHtml(data.meetingMapInfo);
+               
+                const basicInfoFieldsOrder = ['tripDuration', 'tripRegion', 'meetingDate', 'meetingTime', 'meetingPlace', 'departureInfoText', 'arrivalInfoText', 'tripManager'];
+                let basicInfoHtml = '';
+                basicInfoFieldsOrder.forEach(fieldKey => {
+                    const config = stylableFieldsConfig.find(c => c.baseId === fieldKey);
+                    let labelText = '';
+                    switch(fieldKey) {
+                        case 'tripDuration': labelText = '여행 기간:'; break;
+                        case 'tripRegion': labelText = '여행 지역:'; break;
+                        case 'meetingDate': labelText = '미팅 일자:'; break;
+                        case 'meetingTime': labelText = '미팅 시간:'; break;
+                        case 'meetingPlace': labelText = '미팅 장소:'; break;
+                        case 'departureInfoText': labelText = '항공 출발:'; break;
+                        case 'arrivalInfoText': labelText = '항공 도착:'; break;
+                        case 'tripManager': labelText = '담당자:'; break;
+                    }
+                    const content = config ? getStyledContent(data, config) : 안전HTML(data[fieldKey]);
+                    let ddClass = '';
+                    if (fieldKey === 'tripDuration' || fieldKey === 'tripRegion' || fieldKey === 'meetingDate' || fieldKey === 'meetingTime') {
+                        ddClass = 'text-blue'; // dd 요소 내 span에 스타일이 적용되므로, dd에 직접 클래스 부여 가능
+                    } else if (fieldKey === 'departureInfoText' || fieldKey === 'arrivalInfoText') {
+                        ddClass = 'text-red';
+                    }
+
+                    basicInfoHtml += `<dt>${labelText}</dt><dd class="${ddClass}">${content}${fieldKey === 'meetingPlace' ? meetingMapDisplayHtml : ''}</dd>`;
+                });
+
+
+                output.innerHTML = `
+                <div class="document-title-header"> <span>${안전HTML(data.documentTitleInput) || '여행 안내문'}</span> </div>
+                <div class="styled-section">
+                    <div class="section-v-label">기본안내</div>
+                    <div class="section-content">
+                        <div class="content-title-on-border" style="left: ${titleLeftOffset};">기본 여행 정보</div>
+                        <dl class="info-grid">
+                            ${basicInfoHtml}
+                        </dl>
+                    </div>
+                </div>
+                <div class="styled-section">
+                    <div class="section-v-label">준비사항</div>
+                    <div class="section-content">
+                        <div class="content-title-on-border" style="left: ${titleLeftOffset};">필수 준비물</div>
+                        <dl class="info-grid">
+                            <dt>필수 서류:</dt><dd>${안전HTML(data.importantDocs) || '미입력'}</dd>
+                            <dt>환전 및 결제:</dt><dd>${안전HTML(data.currencyInfo) || '미입력'}</dd>
+                            <dt>개인 준비물:</dt><dd>${getStyledContent(data, stylableFieldsConfig.find(c=>c.baseId ==='otherItems'))}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="styled-section">
+                    <div class="section-v-label">참고사항</div>
+                    <div class="section-content">
+                        <div class="content-title-on-border" style="left: ${titleLeftOffset};">추가 안내</div>
+                        ${getStyledContent(data, stylableFieldsConfig.find(c=>c.baseId ==='tripMemo'))}
+                        <dl class="info-grid mt-4">
+                            <dt>시차 정보:</dt><dd>${안전HTML(data.timeDifference) || '미입력'}</dd>
+                            <dt>참고 환율:</dt><dd>${안전HTML(data.exchangeRate) || '미입력'}</dd>
+                            <dt>전압 및 플러그:</dt><dd>${안전HTML(data.voltage) || '미입력'}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="styled-section">
+                    <div class="section-v-label">${baggageLabelHtml}</div>
+                    <div class="section-content">
+                        <div class="content-title-on-border" style="left: ${titleLeftOffset};">수하물 안내</div>
+                        ${getStyledContent(data, stylableFieldsConfig.find(c=>c.baseId ==='baggageRules'))}
+                    </div>
+                </div>
+                ${companyInfoHtml}
+                <div class="preview-footer"> ${companyLogoHtml} </div>
+                `;
+            }
+
+            downloadJpgButton.addEventListener('click', () => {
+                const elementToCapture = document.getElementById('documentOutput');
+                if (elementToCapture) {
+                    const 안내문제목 = document.getElementById('documentTitleInput')?.value || '여행안내문';
+                    elementToCapture.scrollTop = 0;
+                    window.scrollTo(0,0);
+
+                    const options = {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff',
+                        scrollX: -window.scrollX,
+                        scrollY: -window.scrollY,
+                        windowWidth: elementToCapture.scrollWidth,
+                        windowHeight: elementToCapture.scrollHeight
+                    };
+
+                    html2canvas(elementToCapture, options).then(canvas => {
+                        const image = canvas.toDataURL('image/jpeg', 0.95);
+                        const link = document.createElement('a');
+                        const now = new Date();
+                        const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
+                        link.download = `${안전HTML(안내문제목, false).replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ一-龠]/g, '_')}_${timestamp}.jpg`;
+                        link.href = image;
+                        link.click();
+                    }).catch(err => {
+                        console.error("JPG 생성 오류:", err);
+                        alert("JPG 이미지 생성에 실패했습니다. 외부 이미지 로딩 문제일 수 있습니다. 콘솔을 확인해주세요.");
+                    });
+                } else {
+                    alert("미리보기 내용을 찾을 수 없습니다.");
+                }
+            });
+
+            function clearForm() {
+                form.reset();
+                currentHeaderImageDataUrl = null;
+                headerImageFileInput.value = '';
+                currentCompanyLogoDataUrl = null;
+                companyLogoFileInput.value = '';
+                localStorage.removeItem(storageKey);
+                applyTheme({});
+               
+                stylableFieldsConfig.forEach(config => {
+                    if (config.hasFont) {
+                        const fontSelect = document.getElementById(`${config.baseId}Font`);
+                        if(fontSelect) fontSelect.selectedIndex = 0;
+                    }
+                    if (config.hasColor) {
+                        const colorInput = document.getElementById(`${config.baseId}Color`);
+                        if(colorInput) colorInput.value = '#4A148C'; // 기본 색상값
+                    }
+                    if (config.hasFontSize) {
+                        const fontSizeSelect = document.getElementById(`${config.baseId}FontSize`);
+                        if(fontSizeSelect) fontSizeSelect.value = ""; // 기본값 (선택안함)
+                    }
+                    if (config.hasBold) {
+                        const boldCheckbox = document.getElementById(`${config.baseId}Bold`);
+                        if(boldCheckbox) boldCheckbox.checked = false;
+                    }
+                    if (config.hasHighlight) {
+                        const highlightCheckbox = document.getElementById(`${config.baseId}Highlight`);
+                        if(highlightCheckbox) highlightCheckbox.checked = false;
+                    }
+                });
+                generateDocument();
+            }
+            function downloadDataFile() { const data = getFormData(); const jsonData = JSON.stringify(data, null, 2); const blob = new Blob([jsonData], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const now = new Date(); const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`; a.href = url; a.download = `여행안내문_데이터_${timestamp}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+            function uploadDataFile(event) {
+                const file = event.target.files[0];
+                if (file && file.type === "application/json") {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            for (const key in data) {
+                                const element = form.elements[key];
+                                if (key === 'headerImageDataUrl' && data[key]) { currentHeaderImageDataUrl = data[key]; }
+                                else if (key === 'companyLogoDataUrl' && data[key]) { currentCompanyLogoDataUrl = data[key]; }
+                                else if (element) {
+                                    if (element.type === 'checkbox') {
+                                        element.checked = data[key];
+                                    } else {
+                                        element.value = data[key];
+                                    }
+                                }
+                            }
+                            saveFormDataToLocalStorage(); // 폼 요소에 값 설정 후 전체 저장
+                            applyTheme(data);
+                            generateDocument();
+                            alert('데이터를 성공적으로 불러왔습니다.');
+                        } catch (error) {
+                            console.error("JSON 파일 읽기/파싱 오류:", error);
+                            alert('파일을 읽는 중 오류가 발생했습니다. 유효한 JSON 파일인지 확인해주세요.');
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert('JSON 파일을 선택해주세요.');
+                }
+                event.target.value = null;
+            }
+            function setupInputPlaceholders() {
+                const inputs = form.querySelectorAll('input[placeholder]:not([type="file"]), textarea[placeholder]');
+                inputs.forEach(input => {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Tab' && input.placeholder && !input.value) {
+                            e.preventDefault();
+                            input.value = input.placeholder.startsWith('예: ') ? input.placeholder.substring(3) : input.placeholder;
+                            if (input.id === 'headerImageUrlInput' || input.id === 'documentTitleInput') {
+                                applyTheme(getFormData());
+                            }
+                            saveFormDataToLocalStorage();
+                            generateDocument();
+                        }
+                    });
+                    input.addEventListener('input', () => {
+                        if (input.id === 'headerImageUrlInput' || input.id === 'documentTitleInput') {
+                            currentHeaderImageDataUrl = null;
+                            headerImageFileInput.value = '';
+                            applyTheme(getFormData());
+                        }
+                        saveFormDataToLocalStorage();
+                        generateDocument();
+                    });
+                });
+            }
+           
+            form.elements['headerImageUrlInput'].addEventListener('input', () => {
+                currentHeaderImageDataUrl = null;
+                headerImageFileInput.value = '';
+                applyTheme(getFormData());
+                saveFormDataToLocalStorage();
+                generateDocument();
+            });
+           
+            initializeStyleControls(); // 스타일 컨트롤 초기화 함수 호출
+            loadFormDataFromLocalStorage();
+            generateDocument();
+            setupInputPlaceholders();
+            form.addEventListener('submit', (e) => { e.preventDefault(); generateDocument(); });
+            clearFormButton.addEventListener('click', clearForm);
+            downloadDataButton.addEventListener('click', downloadDataFile);
+            dataFileUploadInput.addEventListener('change', uploadDataFile);
+        });
+    </script>
+</body>
+</html>
