@@ -1,57 +1,68 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../hooks/useCustomers';
-import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import SectionCard from '../../components/ui/SectionCard';
+import { Form as AntdForm } from 'antd';
 
 const CustomerCreate = () => {
   const { addCustomer } = useCustomers();
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-  });
+  
+  const [form] = AntdForm.useForm();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addCustomer(form);
+  const onFinish = (values: any) => {
+    addCustomer({
+      id: Date.now(),
+      createdAt: new Date().toISOString().split('T')[0],
+      ...values,
+    });
     navigate('/customers');
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <Card>
-        <h2 className="text-2xl font-bold text-primary mb-6">고객 등록</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-primary font-semibold mb-1">이름</label>
-            <Input name="name" value={form.name} onChange={handleChange} required />
-          </div>
-          <div>
-            <label className="block text-primary font-semibold mb-1">연락처</label>
-            <Input name="phone" value={form.phone} onChange={handleChange} required />
-          </div>
-          <div>
-            <label className="block text-primary font-semibold mb-1">이메일</label>
-            <Input name="email" value={form.email} onChange={handleChange} required />
-          </div>
-          <div>
-            <label className="block text-primary font-semibold mb-1">주소</label>
-            <Input name="address" value={form.address} onChange={handleChange} />
-          </div>
+    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+      <SectionCard label="고객등록">
+        <h2 className="text-2xl font-bold text-primary mb-6">새 고객 등록</h2>
+        <AntdForm
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+        >
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">이름</span>}
+            name="name"
+            rules={[{ required: true, message: '이름을 입력하세요!' }]}
+          >
+            <Input />
+          </AntdForm.Item>
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">연락처</span>}
+            name="phone"
+            rules={[{ required: true, message: '연락처를 입력하세요!' }]}
+          >
+            <Input />
+          </AntdForm.Item>
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">이메일</span>}
+            name="email"
+            rules={[{ required: true, type: 'email', message: '유효한 이메일을 입력하세요!' }]}
+          >
+            <Input />
+          </AntdForm.Item>
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">주소</span>}
+            name="address"
+          >
+            <Input />
+          </AntdForm.Item>
           <div className="flex gap-3 mt-6">
-            <Button type="submit" color="primary">등록</Button>
-            <Button type="button" color="light" onClick={() => navigate('/customers')}>취소</Button>
+            <Button type="primary" htmlType="submit" color="secondary">등록</Button>
+            <Button type="default" htmlType="button" color="light" onClick={() => navigate('/customers')}>취소</Button>
           </div>
-        </form>
-      </Card>
+        </AntdForm>
+      </SectionCard>
     </div>
   );
 };

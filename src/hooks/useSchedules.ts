@@ -35,5 +35,13 @@ export function useSchedules() {
   const getScheduleById = (id: number) =>
     schedules.find((s) => s.id === id);
 
-  return { schedules, addSchedule, getScheduleById };
+  const updateSchedule = (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
+    setSchedules((prev) =>
+      prev.map((schedule) =>
+        schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
+      )
+    );
+  };
+
+  return { schedules, addSchedule, getScheduleById, updateSchedule };
 } 

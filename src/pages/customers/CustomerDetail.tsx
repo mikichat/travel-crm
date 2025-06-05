@@ -1,5 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../hooks/useCustomers';
+import { Descriptions } from 'antd';
+import Button from '../../components/ui/Button';
+import SectionCard from '../../components/ui/SectionCard';
 
 const CustomerDetail = () => {
   const { id } = useParams();
@@ -8,18 +11,24 @@ const CustomerDetail = () => {
   const customer = getCustomerById(Number(id));
 
   if (!customer) {
-    return <div>고객 정보를 찾을 수 없습니다.</div>;
+    return <div className="text-center text-dangerRed mt-10">고객 정보를 찾을 수 없습니다.</div>;
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '0 auto', padding: 24 }}>
-      <h2>고객 상세</h2>
-      <div><b>이름:</b> {customer.name}</div>
-      <div><b>연락처:</b> {customer.phone}</div>
-      <div><b>이메일:</b> {customer.email}</div>
-      <div><b>주소:</b> {customer.address}</div>
-      <div><b>등록일:</b> {customer.createdAt}</div>
-      <button onClick={() => navigate('/customers')}>목록으로</button>
+    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+      <SectionCard label="고객정보">
+        <h2 className="text-2xl font-bold text-primary mb-6">고객 상세</h2>
+        <Descriptions column={1} bordered className="mb-4">
+          <Descriptions.Item label="이름"><span className="font-semibold text-primary">{customer.name}</span></Descriptions.Item>
+          <Descriptions.Item label="연락처">{customer.phone}</Descriptions.Item>
+          <Descriptions.Item label="이메일">{customer.email}</Descriptions.Item>
+          <Descriptions.Item label="주소">{customer.address}</Descriptions.Item>
+          <Descriptions.Item label="등록일">{customer.createdAt}</Descriptions.Item>
+        </Descriptions>
+        <div className="flex gap-3 mt-6">
+          <Button onClick={() => navigate('/customers')} color="light">목록</Button>
+        </div>
+      </SectionCard>
     </div>
   );
 };
