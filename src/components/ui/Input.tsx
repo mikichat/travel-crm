@@ -1,4 +1,4 @@
-import { Input as AntdInput, InputProps as AntdInputProps } from 'antd';
+import { Input as AntdInput, type InputProps as AntdInputProps } from 'antd';
 
 interface InputProps extends AntdInputProps {
   className?: string;

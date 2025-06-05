@@ -4,7 +4,7 @@ import { useCustomers } from '../../hooks/useCustomers';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm } from 'antd';
+import { Form as AntdForm, Input as AntdInput } from 'antd';
 
 const CustomerCreate = () => {
   const { addCustomer } = useCustomers();
@@ -22,7 +22,7 @@ const CustomerCreate = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="고객등록">
         <h2 className="text-2xl font-bold text-primary mb-6">새 고객 등록</h2>
         <AntdForm
@@ -57,9 +57,9 @@ const CustomerCreate = () => {
           >
             <Input />
           </AntdForm.Item>
-          <div className="flex gap-3 mt-6">
-            <Button type="primary" htmlType="submit" color="secondary">등록</Button>
-            <Button type="default" htmlType="button" color="light" onClick={() => navigate('/customers')}>취소</Button>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="primary" htmlType="submit" buttonColor="secondary">등록</Button>
+            <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate('/customers')}>취소</Button>
           </div>
         </AntdForm>
       </SectionCard>
