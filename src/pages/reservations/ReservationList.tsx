@@ -42,13 +42,13 @@ const ReservationList = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Button color="info" onClick={() => navigate(`/reservations/${record.id}`)}>
+          <Button buttonColor="info" onClick={() => navigate(`/reservations/${record.id}`)}>
             상세
           </Button>
-          <Button color="secondary" onClick={() => navigate(`/reservations/${record.id}/edit`)}>
+          <Button buttonColor="secondary" onClick={() => navigate(`/reservations/${record.id}/edit`)}>
             수정
           </Button>
-          <Button color="danger" onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) deleteReservation(record.id); }}>
+          <Button buttonColor="danger" onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) deleteReservation(record.id); }}>
             삭제
           </Button>
         </Space>
@@ -57,21 +57,23 @@ const ReservationList = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약목록">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-primary">예약 목록</h2>
-          <Button onClick={() => navigate('/reservations/create')} color="primary">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-primary mb-4 sm:mb-0">예약 목록</h2>
+          <Button onClick={() => navigate('/reservations/create')} buttonColor="primary">
             예약 등록
           </Button>
         </div>
-        <Table
-          columns={columns}
-          dataSource={reservations.map(r => ({ ...r, key: r.id }))}
-          pagination={{ pageSize: 10 }}
-          rowKey="id"
-          className="rounded-lg overflow-hidden border border-lightViolet"
-        />
+        <div className="overflow-x-auto">
+          <Table
+            columns={columns}
+            dataSource={reservations.map(r => ({ ...r, key: r.id }))}
+            pagination={{ pageSize: 10 }}
+            rowKey="id"
+            className="rounded-lg overflow-hidden border border-lightViolet"
+          />
+        </div>
       </SectionCard>
     </div>
   );

@@ -23,7 +23,7 @@ const ScheduleCreate = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="일정등록">
         <h2 className="text-2xl font-bold text-primary mb-6">새 일정 등록</h2>
         <AntdForm
@@ -61,9 +61,9 @@ const ScheduleCreate = () => {
           >
             <AntdInput.TextArea rows={3} />
           </AntdForm.Item>
-          <div className="flex gap-3 mt-6">
-            <Button type="primary" htmlType="submit" color="secondary">등록</Button>
-            <Button type="default" htmlType="button" color="light" onClick={() => navigate('/schedules')}>취소</Button>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="primary" htmlType="submit" buttonColor="secondary">등록</Button>
+            <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate('/schedules')}>취소</Button>
           </div>
         </AntdForm>
       </SectionCard>

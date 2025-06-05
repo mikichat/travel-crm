@@ -4,7 +4,7 @@
 
 # React 프론트엔드에서는 이 API를 호출하여 데이터를 주고받는 방식
 
-# UI Tailwind CSS 프레임워크 사용
+# UI Ant Design 프레임워크 사용 (기존 Tailwind CSS에서 전환)
 
 # MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
 
@@ -18,12 +18,12 @@ travel-crm/
 │   └── favicon.ico
 ├── src/
 │   ├── components/           # 재사용 가능한 컴포넌트
-│   │   ├── ui/              # 기본 UI 컴포넌트
+│   │   ├── ui/              # 기본 UI 컴포넌트 (Ant Design 기반)
 │   │   │   ├── Button.tsx
 │   │   │   ├── Input.tsx
 │   │   │   ├── Modal.tsx
 │   │   │   └── index.ts
-│   │   ├── layout/          # 레이아웃 컴포넌트
+│   │   ├── layout/          # 레이아웃 컴포넌트 (Ant Design 기반)
 │   │   │   ├── Header.tsx
 │   │   │   ├── Sidebar.tsx
 │   │   │   ├── MainLayout.tsx
@@ -36,7 +36,7 @@ travel-crm/
 │   │       ├── Loading.tsx
 │   │       ├── ErrorBoundary.tsx
 │   │       └── index.ts
-│   ├── pages/               # 페이지 컴포넌트
+│   ├── pages/               # 페이지 컴포넌트 (Ant Design 기반)
 │   │   ├── customers/       # 고객 관리 페이지
 │   │   │   ├── CustomerList.tsx
 │   │   │   ├── CustomerDetail.tsx
@@ -46,10 +46,17 @@ travel-crm/
 │   │   │   ├── ScheduleList.tsx
 │   │   │   ├── ScheduleDetail.tsx
 │   │   │   ├── ScheduleCreate.tsx
+│   │   │   ├── ScheduleEdit.tsx # 새로 추가됨
 │   │   │   └── index.ts
 │   │   ├── dashboard/       # 대시보드
 │   │   │   ├── Dashboard.tsx
 │   │   │   ├── StatCards.tsx
+│   │   │   └── index.ts
+│   │   ├── reservations/    # 예약 관리 페이지
+│   │   │   ├── ReservationList.tsx
+│   │   │   ├── ReservationCreate.tsx
+│   │   │   ├── ReservationDetail.tsx
+│   │   │   ├── ReservationEdit.tsx
 │   │   │   └── index.ts
 │   │   └── auth/           # 인증 페이지
 │   │       ├── Login.tsx
@@ -59,6 +66,7 @@ travel-crm/
 │   │   ├── useKeyboard.ts  # 키보드 단축키 훅
 │   │   ├── useCustomers.ts # 고객 관리 훅
 │   │   ├── useSchedules.ts # 일정 관리 훅
+│   │   ├── useReservations.ts # 예약 관리 훅 (기존)
 │   │   └── index.ts
 │   ├── services/           # API 서비스
 │   │   ├── api.ts          # API 기본 설정
@@ -68,6 +76,7 @@ travel-crm/
 │   ├── types/              # TypeScript 타입 정의
 │   │   ├── customer.ts
 │   │   ├── schedule.ts
+│   │   ├── reservation.ts # 예약 타입 (기존)
 │   │   ├── api.ts
 │   │   └── index.ts
 │   ├── utils/              # 유틸리티 함수
@@ -103,18 +112,20 @@ travel-crm/
 ## 주요 폴더 설명
 
 ### `src/components/`
-- **ui/**: 기본 UI 컴포넌트 (Button, Input 등)
-- **layout/**: 레이아웃 관련 컴포넌트
+- **ui/**: 기본 UI 컴포넌트 (Button, Input 등) - **Ant Design 기반으로 교체됨**
+- **layout/**: 레이아웃 관련 컴포넌트 - **Ant Design 기반으로 교체됨**
 - **forms/**: 폼 관련 컴포넌트
 - **common/**: 공통으로 사용되는 컴포넌트
 
 ### `src/pages/`
-- 각 기능별로 폴더 분리
+- 각 기능별로 폴더 분리 - **모든 페이지 Ant Design 기반으로 업데이트됨**
 - 페이지별 컴포넌트와 하위 컴포넌트 포함
 
 ### `src/hooks/`
 - 커스텀 훅 모음
 - 비즈니스 로직과 UI 분리
+- `useReservations.ts`에 예약 관리 CRUD 훅 구현 (기존)
+- `useSchedules.ts`에 일정 관리 CRUD 훅 구현 (수정 기능 추가)
 
 ### `src/services/`
 - API 호출 관련 함수들
@@ -154,16 +165,26 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      colors: {
-        primary: '#1890ff',
-        secondary: '#722ed1',
-      }
-    },
+    }
   },
   plugins: [],
 }
 ```
 
+### UI 프레임워크 변경: Ant Design 도입
+이 프로젝트는 기존 Tailwind CSS에서 Ant Design으로 UI 프레임워크를 전환하여 더욱 세련되고 강력한 사용자 경험을 제공합니다.
+
+- **설치된 패키지**: `antd`
+- **적용된 스타일**: 바이올렛 계열의 커스텀 테마가 적용되었습니다.
+- **주요 변경 사항**: 
+    - `src/main.tsx`: Ant Design 기본 CSS 임포트 (`antd/dist/reset.css`)
+    - `src/components/ui/`: `Button`, `Input`, `Card`, `SectionCard` 컴포넌트가 Ant Design 기반으로 재작성되었습니다.
+    - `src/components/layout/`: `Header`와 `MainLayout` 컴포넌트가 Ant Design `Layout` 및 `Menu` 컴포넌트를 사용하여 업데이트되었습니다.
+    - `src/pages/`: 모든 고객, 일정, 예약, 대시보드 페이지가 Ant Design 컴포넌트를 활용하도록 업데이트되었습니다.
+    - `src/hooks/useSchedules.ts`: 일정 수정(`updateSchedule`) 기능이 추가되었습니다.
+    - `src/pages/schedules/ScheduleEdit.tsx`: 새로운 일정 수정 페이지가 추가되고 라우팅에 연결되었습니다.
+    - `tailwind.config.js`: Ant Design 사용에 따라 Tailwind CSS의 커스텀 컬러 정의가 제거되었습니다.
+    - **참고**: `src/App.css` 파일은 여전히 불필요한 스타일을 포함하고 있을 수 있습니다. UI가 예상대로 작동하지 않는다면, `src/App.css` 파일을 열어 `@tailwind base; @tailwind components; @tailwind utilities;` 세 줄만 남기고 모든 내용을 수동으로 삭제하는 것을 권장합니다.
 
 # React + TypeScript + Vite
 

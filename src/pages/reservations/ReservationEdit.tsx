@@ -4,7 +4,7 @@ import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm } from 'antd';
+import { Form as AntdForm, Input as AntdInput } from 'antd';
 
 const ReservationEdit = () => {
   const { id } = useParams();
@@ -42,7 +42,7 @@ const ReservationEdit = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약수정">
         <h2 className="text-2xl font-bold text-primary mb-6">예약 수정</h2>
         <AntdForm
@@ -72,7 +72,7 @@ const ReservationEdit = () => {
           >
             <Input placeholder="예: 프랑스 파리, 스위스 인터라켄" />
           </AntdForm.Item>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AntdForm.Item
               label={<span className="block text-primary font-semibold">미팅 일자</span>}
               name="meetingDate"
@@ -104,7 +104,7 @@ const ReservationEdit = () => {
           </AntdForm.Item>
 
           <SectionCard label="준비물" className="mb-0">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <AntdForm.Item
                 label={<span className="block text-primary font-semibold">필수 서류</span>}
                 name="importantDocs"
@@ -131,13 +131,13 @@ const ReservationEdit = () => {
               label={<span className="block text-primary font-semibold">메모/참고사항</span>}
               name="memo"
             >
-              <Input.TextArea rows={3} />
+              <AntdInput.TextArea rows={3} />
             </AntdForm.Item>
           </SectionCard>
 
-          <div className="flex gap-3 mt-6">
-            <Button type="primary" htmlType="submit" color="secondary">수정</Button>
-            <Button type="button" color="light" onClick={() => navigate(`/reservations/${id}`)}>취소</Button>
+          <div className="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button type="primary" htmlType="submit" buttonColor="secondary">수정</Button>
+            <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate(`/reservations/${id}`)}>취소</Button>
           </div>
         </AntdForm>
       </SectionCard>

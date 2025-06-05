@@ -1,16 +1,16 @@
-import { Button as AntdButton, ButtonProps as AntdButtonProps } from 'antd';
+import { Button as AntdButton, type ButtonProps as AntdButtonProps } from 'antd';
 import type { ReactNode } from 'react';
 
 interface ButtonProps extends AntdButtonProps {
   children: ReactNode;
-  color?: 'primary' | 'secondary' | 'danger' | 'info' | 'light';
+  buttonColor?: 'primary' | 'secondary' | 'danger' | 'info' | 'light';
 }
 
-const Button = ({ children, color = 'primary', className = '', ...props }: ButtonProps) => {
+const Button = ({ children, buttonColor = 'primary', className = '', ...props }: ButtonProps) => {
   let type: AntdButtonProps['type'] = 'default';
   let style = {};
 
-  switch (color) {
+  switch (buttonColor) {
     case 'primary':
       type = 'primary';
       style = { backgroundColor: '#7E57C2', borderColor: '#7E57C2' }; // primary 컬러

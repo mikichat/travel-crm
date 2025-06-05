@@ -15,7 +15,7 @@ const ReservationDetail = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약정보">
         <Descriptions column={1} bordered className="mb-4">
           <Descriptions.Item label="여행 제목"><span className="font-semibold text-primary">{reservation.title}</span></Descriptions.Item>
@@ -30,10 +30,10 @@ const ReservationDetail = () => {
           {reservation.otherItems && <Descriptions.Item label="개인 준비물">{reservation.otherItems}</Descriptions.Item>}
           {reservation.memo && <Descriptions.Item label="메모/참고사항">{reservation.memo}</Descriptions.Item>}
         </Descriptions>
-        <div className="flex gap-3 mt-6">
-          <Button onClick={() => navigate(`/reservations/${reservation.id}/edit`)} color="secondary">수정</Button>
-          <Button onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) { deleteReservation(reservation.id); navigate('/reservations'); }}} color="danger">삭제</Button>
-          <Button onClick={() => navigate('/reservations')} color="light">목록</Button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <Button onClick={() => navigate(`/reservations/${reservation.id}/edit`)} buttonColor="secondary">수정</Button>
+          <Button onClick={() => { if(window.confirm('정말 삭제하시겠습니까?')) { deleteReservation(reservation.id); navigate('/reservations'); }}} buttonColor="danger">삭제</Button>
+          <Button onClick={() => navigate('/reservations')} buttonColor="light">목록</Button>
         </div>
       </SectionCard>
     </div>

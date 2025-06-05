@@ -15,7 +15,7 @@ const CustomerDetail = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-lightViolet min-h-screen">
+    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="고객정보">
         <h2 className="text-2xl font-bold text-primary mb-6">고객 상세</h2>
         <Descriptions column={1} bordered className="mb-4">
@@ -25,8 +25,8 @@ const CustomerDetail = () => {
           <Descriptions.Item label="주소">{customer.address}</Descriptions.Item>
           <Descriptions.Item label="등록일">{customer.createdAt}</Descriptions.Item>
         </Descriptions>
-        <div className="flex gap-3 mt-6">
-          <Button onClick={() => navigate('/customers')} color="light">목록</Button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <Button onClick={() => navigate('/customers')} buttonColor="light">목록</Button>
         </div>
       </SectionCard>
     </div>
