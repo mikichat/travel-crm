@@ -113,7 +113,7 @@ travel-crm/
 └── README.md
 
 
-# UI Ant Design 프레임워크 사용
+# UI Ant Design 프레임워크 , Ag-grid 사용
 
 # MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
 
