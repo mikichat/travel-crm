@@ -63,6 +63,9 @@ const ScheduleList = () => {
           <Button buttonColor="info" onClick={() => navigate(`/schedules/${params.data.id}`)}>
             상세
           </Button>
+          <Button buttonColor="secondary" onClick={() => navigate(`/schedules/${params.data.id}/edit`)}>
+            수정
+          </Button>
         </Space>
       ),
       minWidth: 100,
