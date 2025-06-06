@@ -5,32 +5,58 @@ import SectionCard from '../../components/ui/SectionCard';
 import { Table, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { Schedule } from '../../types/schedule';
+import React, { useMemo } from 'react';
 
 const ScheduleList = () => {
   const { schedules } = useSchedules();
   const navigate = useNavigate();
+
+  const titleFilters = useMemo(() => {
+    const uniqueTitles = [...new Set(schedules.map(s => s.title))];
+    return uniqueTitles.map(title => ({ text: title, value: title }));
+  }, [schedules]);
+
+  const dateFilters = useMemo(() => {
+    const uniqueDates = [...new Set(schedules.map(s => s.date))];
+    return uniqueDates.map(date => ({ text: date, value: date }));
+  }, [schedules]);
+
+  const customerIdFilters = useMemo(() => {
+    const uniqueCustomerIds = [...new Set(schedules.map(s => s.customerId))];
+    return uniqueCustomerIds.map(id => ({ text: id.toString(), value: id }));
+  }, [schedules]);
 
   const columns: ColumnsType<Schedule> = [
     {
       title: '제목',
       dataIndex: 'title',
       key: 'title',
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      filters: titleFilters,
+      onFilter: (value, record) => record.title.includes(value as string),
       render: (text: string, record: Schedule) => <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/schedules/${record.id}`)}>{text}</span>,
     },
     {
       title: '날짜',
       dataIndex: 'date',
       key: 'date',
+      sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      filters: dateFilters,
+      onFilter: (value, record) => record.date.includes(value as string),
     },
     {
       title: '고객ID',
       dataIndex: 'customerId',
       key: 'customerId',
+      sorter: (a, b) => a.customerId - b.customerId,
+      filters: customerIdFilters,
+      onFilter: (value, record) => record.customerId === (value as number),
     },
     {
       title: '등록일',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
     {
       title: '동작',

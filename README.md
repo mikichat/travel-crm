@@ -2,112 +2,120 @@
 
 # 💻 React + TypeScript + Vite + MariaDB 개발 규칙
 
-# React 프론트엔드에서는 이 API를 호출하여 데이터를 주고받는 방식
+# 🧳 소규모 여행사 일정 및 견적 관리 시스템
 
-# UI Ant Design 프레임워크 사용 (기존 Tailwind CSS에서 전환)
+React + TypeScript + Vite 기반의 프론트엔드, MariaDB를 사용하는 소규모 여행사 맞춤 시스템입니다.
 
-# MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
+## 🏗 기술 스택
 
+| 구분       | 기술                              |
+|------------|-----------------------------------|
+| 프론트엔드 | React, TypeScript, Vite, Ant Design |
+| 백엔드     | Node.js + Express (또는 FastAPI), Axios     |
+| DB         | MariaDB                           |
+| 툴        | Cursor, VSCode, Git                |
 
 # 여행사 CRM 프로젝트 폴더 구조
-
-```
 travel-crm/
 ├── public/
-│   ├── index.html
-│   └── favicon.ico
+│ ├── index.html
+│ └── favicon.ico
 ├── src/
-│   ├── components/           # 재사용 가능한 컴포넌트
-│   │   ├── ui/              # 기본 UI 컴포넌트 (Ant Design 기반)
-│   │   │   ├── Button.tsx
-│   │   │   ├── Input.tsx
-│   │   │   ├── Modal.tsx
-│   │   │   └── index.ts
-│   │   ├── layout/          # 레이아웃 컴포넌트 (Ant Design 기반)
-│   │   │   ├── Header.tsx
-│   │   │   ├── Sidebar.tsx
-│   │   │   ├── MainLayout.tsx
-│   │   │   └── index.ts
-│   │   ├── forms/           # 폼 관련 컴포넌트
-│   │   │   ├── CustomerForm.tsx
-│   │   │   ├── ScheduleForm.tsx
-│   │   │   └── index.ts
-│   │   └── common/          # 공통 컴포넌트
-│   │       ├── Loading.tsx
-│   │       ├── ErrorBoundary.tsx
-│   │       └── index.ts
-│   ├── pages/               # 페이지 컴포넌트 (Ant Design 기반)
-│   │   ├── customers/       # 고객 관리 페이지
-│   │   │   ├── CustomerList.tsx
-│   │   │   ├── CustomerDetail.tsx
-│   │   │   ├── CustomerCreate.tsx
-│   │   │   └── index.ts
-│   │   ├── schedules/       # 일정 관리 페이지
-│   │   │   ├── ScheduleList.tsx
-│   │   │   ├── ScheduleDetail.tsx
-│   │   │   ├── ScheduleCreate.tsx
-│   │   │   ├── ScheduleEdit.tsx # 새로 추가됨
-│   │   │   └── index.ts
-│   │   ├── dashboard/       # 대시보드
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── StatCards.tsx
-│   │   │   └── index.ts
-│   │   ├── reservations/    # 예약 관리 페이지
-│   │   │   ├── ReservationList.tsx
-│   │   │   ├── ReservationCreate.tsx
-│   │   │   ├── ReservationDetail.tsx
-│   │   │   ├── ReservationEdit.tsx
-│   │   │   └── index.ts
-│   │   └── auth/           # 인증 페이지
-│   │       ├── Login.tsx
-│   │       ├── Register.tsx
-│   │       └── index.ts
-│   ├── hooks/              # 커스텀 훅
-│   │   ├── useKeyboard.ts  # 키보드 단축키 훅
-│   │   ├── useCustomers.ts # 고객 관리 훅
-│   │   ├── useSchedules.ts # 일정 관리 훅
-│   │   ├── useReservations.ts # 예약 관리 훅 (기존)
-│   │   └── index.ts
-│   ├── services/           # API 서비스
-│   │   ├── api.ts          # API 기본 설정
-│   │   ├── customers.ts    # 고객 API
-│   │   ├── schedules.ts    # 일정 API
-│   │   └── auth.ts         # 인증 API
-│   ├── types/              # TypeScript 타입 정의
-│   │   ├── customer.ts
-│   │   ├── schedule.ts
-│   │   ├── reservation.ts # 예약 타입 (기존)
-│   │   ├── api.ts
-│   │   └── index.ts
-│   ├── utils/              # 유틸리티 함수
-│   │   ├── constants.ts    # 상수
-│   │   ├── formatters.ts   # 포맷터 함수
-│   │   ├── validators.ts   # 유효성 검사
-│   │   └── helpers.ts      # 헬퍼 함수
-│   ├── store/              # 상태 관리 (옵션)
-│   │   ├── index.ts
-│   │   ├── customerStore.ts
-│   │   └── authStore.ts
-│   ├── styles/             # 스타일 파일
-│   │   ├── globals.css
-│   │   ├── components.css
-│   │   └── antd-overrides.css
-│   ├── assets/             # 정적 자원
-│   │   ├── images/
-│   │   ├── icons/
-│   │   └── fonts/
-│   ├── App.tsx
-│   ├── App.css
-│   ├── index.tsx
-│   └── index.css
-├── .env                    # 환경변수
-├── .env.local             # 로컬 환경변수
+│ ├── components/ # 재사용 가능한 컴포넌트
+│ │ ├── ui/ # 기본 UI 컴포넌트 (Ant Design 기반)
+│ │ │ ├── Button.tsx
+│ │ │ ├── Input.tsx
+│ │ │ ├── Modal.tsx
+│ │ │ └── index.ts
+│ │ ├── layout/ # 레이아웃 컴포넌트 (Ant Design 기반)
+│ │ │ ├── Header.tsx
+│ │ │ ├── Sidebar.tsx
+│ │ │ ├── MainLayout.tsx
+│ │ │ └── index.ts
+│ │ ├── forms/ # 폼 관련 컴포넌트
+│ │ │ ├── CustomerForm.tsx
+│ │ │ ├── ScheduleForm.tsx
+│ │ │ └── index.ts
+│ │ └── common/ # 공통 컴포넌트
+│ │ ├── Loading.tsx
+│ │ ├── ErrorBoundary.tsx
+│ │ └── index.ts
+│ ├── pages/ # 페이지 컴포넌트 (Ant Design 기반)
+│ │ ├── customers/ # 고객 관리 페이지
+│ │ │ ├── CustomerList.tsx
+│ │ │ ├── CustomerDetail.tsx
+│ │ │ ├── CustomerCreate.tsx
+│ │ │ └── index.ts
+│ │ ├── schedules/ # 일정 관리 페이지
+│ │ │ ├── ScheduleList.tsx
+│ │ │ ├── ScheduleDetail.tsx
+│ │ │ ├── ScheduleCreate.tsx
+│ │ │ ├── ScheduleEdit.tsx # 새로 추가됨
+│ │ │ └── index.ts
+│ │ ├── dashboard/ # 대시보드
+│ │ │ ├── Dashboard.tsx
+│ │ │ ├── StatCards.tsx
+│ │ │ └── index.ts
+│ │ ├── reservations/ # 예약 관리 페이지
+│ │ │ ├── ReservationList.tsx
+│ │ │ ├── ReservationCreate.tsx
+│ │ │ ├── ReservationDetail.tsx
+│ │ │ ├── ReservationEdit.tsx
+│ │ │ └── index.ts
+│ │ └── auth/ # 인증 페이지
+│ │ ├── Login.tsx
+│ │ ├── Register.tsx
+│ │ └── index.ts
+│ ├── hooks/ # 커스텀 훅
+│ │ ├── useKeyboard.ts # 키보드 단축키 훅
+│ │ ├── useCustomers.ts # 고객 관리 훅
+│ │ ├── useSchedules.ts # 일정 관리 훅
+│ │ ├── useReservations.ts # 예약 관리 훅 (기존)
+│ │ └── index.ts
+│ ├── services/ # API 서비스
+│ │ ├── api.ts # API 기본 설정
+│ │ ├── customers.ts # 고객 API
+│ │ ├── schedules.ts # 일정 API
+│ │ └── auth.ts # 인증 API
+│ ├── types/ # TypeScript 타입 정의
+│ │ ├── customer.ts
+│ │ ├── schedule.ts
+│ │ ├── reservation.ts # 예약 타입 (기존)
+│ │ ├── api.ts
+│ │ └── index.ts
+│ ├── utils/ # 유틸리티 함수
+│ │ ├── constants.ts # 상수
+│ │ ├── formatters.ts # 포맷터 함수
+│ │ ├── validators.ts # 유효성 검사
+│ │ └── helpers.ts # 헬퍼 함수
+│ ├── store/ # 상태 관리 (옵션)
+│ │ ├── index.ts
+│ │ ├── customerStore.ts
+│ │ └── authStore.ts
+│ ├── styles/ # 스타일 파일
+│ │ ├── globals.css
+│ │ ├── components.css
+│ │ └── antd-overrides.css
+│ ├── assets/ # 정적 자원
+│ │ ├── images/
+│ │ ├── icons/
+│ │ └── fonts/
+│ ├── App.tsx
+│ ├── App.css
+│ ├── index.tsx
+│ └── index.css
+├── .env # 환경변수
+├── .env.local # 로컬 환경변수
 ├── .gitignore
 ├── package.json
 ├── tailwind.config.js
 ├── tsconfig.json
 └── README.md
-```
+
+
+# UI Ant Design 프레임워크 사용
+
+# MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
 
 ## 주요 폴더 설명
 
@@ -185,58 +193,3 @@ module.exports = {
     - `src/pages/schedules/ScheduleEdit.tsx`: 새로운 일정 수정 페이지가 추가되고 라우팅에 연결되었습니다.
     - `tailwind.config.js`: Ant Design 사용에 따라 Tailwind CSS의 커스텀 컬러 정의가 제거되었습니다.
     - **참고**: `src/App.css` 파일은 여전히 불필요한 스타일을 포함하고 있을 수 있습니다. UI가 예상대로 작동하지 않는다면, `src/App.css` 파일을 열어 `@tailwind base; @tailwind components; @tailwind utilities;` 세 줄만 남기고 모든 내용을 수동으로 삭제하는 것을 권장합니다.
-
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
