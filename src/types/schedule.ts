@@ -4,5 +4,6 @@ export interface Schedule {
   date: string;
   customerId: number;
   description?: string;
+  memo?: string;
   createdAt: string;
 } 

@@ -1,12 +1,41 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSchedules } from '../../hooks/useSchedules';
 import Button from '../../components/ui/Button';
+import { useEffect, useRef } from 'react';
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header';
+import List from '@editorjs/list';
+import Paragraph from '@editorjs/paragraph';
 
 const ScheduleDetail = () => {
   const { id } = useParams();
   const { getScheduleById } = useSchedules();
   const navigate = useNavigate();
   const schedule = getScheduleById(Number(id));
+
+  const editorRef = useRef<EditorJS | null>(null);
+
+  useEffect(() => {
+    if (schedule && !editorRef.current) {
+      editorRef.current = new EditorJS({
+        holder: 'editorjs-container',
+        readOnly: true,
+        tools: {
+          header: Header,
+          list: List,
+          paragraph: Paragraph,
+        },
+        data: schedule.memo ? JSON.parse(schedule.memo) : { blocks: [] },
+      });
+    }
+
+    return () => {
+      if (editorRef.current) {
+        editorRef.current.destroy();
+        editorRef.current = null;
+      }
+    };
+  }, [schedule]);
 
   if (!schedule) {
     return <div className="text-center text-dangerRed mt-10">일정 정보를 찾을 수 없습니다.</div>;
@@ -100,6 +129,13 @@ const ScheduleDetail = () => {
             </div>
             {/* schedule 객체에 상세 일정 데이터(예: 일차별 교통편, 식사, 활동 목록, 이미지 등)가 추가된다면, 이곳에 추가적인 타임라인 아이템들을 동적으로 렌더링할 수 있습니다. */}
           </div>
+
+          {/* Editor.js for Memo */} 
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-primary mb-4">메모</h3>
+            <div id="editorjs-container" className="border border-gray-300 rounded-md p-4 bg-white editor-readonly"></div>
+          </div>
+
         </div>
         <div className="flex gap-3 mt-6 p-4">
           <Button onClick={() => navigate('/schedules')} buttonColor="light">목록</Button>
