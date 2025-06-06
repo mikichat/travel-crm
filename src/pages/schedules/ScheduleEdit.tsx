@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSchedules } from '../../hooks/useSchedules';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
 import { Form as AntdForm, Input as AntdInput } from 'antd';
+import EditorJS from '@editorjs/editorjs';
+import Header from '@editorjs/header';
+import List from '@editorjs/list';
+import Paragraph from '@editorjs/paragraph';
 
 const ScheduleEdit = () => {
   const { id } = useParams();
@@ -13,6 +17,7 @@ const ScheduleEdit = () => {
   const schedule = getScheduleById(Number(id));
 
   const [form] = AntdForm.useForm();
+  const editorRef = useRef<EditorJS | null>(null);
 
   useEffect(() => {
     if (schedule) {
@@ -20,16 +25,59 @@ const ScheduleEdit = () => {
         title: schedule.title,
         date: schedule.date,
         customerId: schedule.customerId,
-        description: schedule.description || '',
+        description: schedule.description,
+        // memo는 Editor.js로 처리되므로 AntdForm에서 직접 설정하지 않습니다.
       });
+
+      // Editor.js 초기화
+      if (!editorRef.current) {
+        let editorData;
+        try {
+          editorData = schedule.memo ? JSON.parse(schedule.memo) : { blocks: [] };
+        } catch (e) {
+          console.error("Failed to parse schedule.memo in ScheduleEdit:", e);
+          editorData = { blocks: [] };
+        }
+
+        editorRef.current = new EditorJS({
+          holder: 'schedule-memo-editor', // 고유한 holder ID
+          readOnly: false, // 편집 모드이므로 readOnly는 false
+          tools: {
+            header: Header,
+            list: List,
+            paragraph: Paragraph,
+          },
+          data: editorData,
+        });
+      }
     }
+
+    // 컴포넌트 언마운트 시 Editor.js 인스턴스 정리
+    return () => {
+      if (editorRef.current && typeof editorRef.current.destroy === 'function') {
+        editorRef.current.destroy();
+        editorRef.current = null;
+      }
+    };
   }, [schedule, form]);
 
-  const onFinish = (values: any) => {
-    updateSchedule(Number(id), {
+  const onFinish = async (values: any) => {
+    // Editor.js에서 memo 데이터 가져오기
+    let memoData = null;
+    if (editorRef.current) {
+      try {
+        const outputData = await editorRef.current.save();
+        memoData = JSON.stringify(outputData);
+      } catch (error) {
+        console.error('Saving failed: ', error);
+      }
+    }
+
+    const updatedValues = {
       ...values,
-      customerId: Number(values.customerId),
-    });
+      memo: memoData, // Editor.js에서 가져온 memo 데이터 추가
+    };
+    updateSchedule(Number(id), updatedValues);
     navigate(`/schedules/${id}`);
   };
 
@@ -45,7 +93,7 @@ const ScheduleEdit = () => {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={form.getFieldsValue()}
+          initialValues={form.getFieldsValue()} // 초기값은 useEffect에서 설정
         >
           <AntdForm.Item
             label={<span className="block text-primary font-semibold">제목</span>}
@@ -62,12 +110,9 @@ const ScheduleEdit = () => {
             <Input type="date" />
           </AntdForm.Item>
           <AntdForm.Item
-            label={<span className="block text-primary font-semibold">고객ID</span>}
+            label={<span className="block text-primary font-semibold">고객 ID</span>}
             name="customerId"
-            rules={[
-              { required: true, message: '고객ID를 입력하세요!' },
-              { pattern: /^[0-9]*$/, message: '고객ID는 숫자만 입력 가능합니다!' }
-            ]}
+            rules={[{ required: true, message: '고객 ID를 입력하세요!' }]}
           >
             <Input />
           </AntdForm.Item>
@@ -77,6 +122,11 @@ const ScheduleEdit = () => {
           >
             <AntdInput.TextArea rows={3} />
           </AntdForm.Item>
+
+          <SectionCard label="메모" className="mb-0">
+            <div id="schedule-memo-editor" className="border border-gray-300 rounded-md p-4 bg-white editor-editable"></div>
+          </SectionCard>
+
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <Button type="primary" htmlType="submit" buttonColor="secondary">수정</Button>
             <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate(`/schedules/${id}`)}>취소</Button>
