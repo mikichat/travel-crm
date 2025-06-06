@@ -7,6 +7,8 @@ export interface Reservation {
   meetingTime: string;
   meetingPlace: string;
   manager: string;
+  reservationMaker: string;
+  reservationMakerContact: string;
   importantDocs?: string;
   currencyInfo?: string;
   otherItems?: string;

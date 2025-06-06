@@ -24,6 +24,8 @@ const ReservationEdit = () => {
         meetingTime: reservation.meetingTime,
         meetingPlace: reservation.meetingPlace,
         manager: reservation.manager,
+        reservationMaker: reservation.reservationMaker || '',
+        reservationMakerContact: reservation.reservationMakerContact || '',
         importantDocs: reservation.importantDocs || '',
         currencyInfo: reservation.currencyInfo || '',
         otherItems: reservation.otherItems || '',
@@ -101,6 +103,21 @@ const ReservationEdit = () => {
             rules={[{ required: true, message: '담당자를 입력하세요!' }]}
           >
             <Input placeholder="예: 김철수 (010-1234-5678)" />
+          </AntdForm.Item>
+
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">예약자</span>}
+            name="reservationMaker"
+            rules={[{ required: true, message: '예약자를 입력하세요!' }]}
+          >
+            <Input />
+          </AntdForm.Item>
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">예약자연락처</span>}
+            name="reservationMakerContact"
+            rules={[{ required: true, message: '예약자 연락처를 입력하세요!' }]}
+          >
+            <Input />
           </AntdForm.Item>
 
           <SectionCard label="준비물" className="mb-0">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
@@ -18,14 +18,25 @@ ModuleRegistry.registerModules([ AllCommunityModule ]);
 const ReservationList = () => {
   const { reservations, deleteReservation, updateReservation } = useReservations();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const gridRef = useRef<AgGridReact>(null);
 
   const [rowData, setRowData] = useState<Reservation[]>([]);
 
   useEffect(() => {
-    setRowData(reservations);
-  }, [reservations]);
+    const params = new URLSearchParams(location.search);
+    const searchQuery = params.get('search');
+
+    if (searchQuery) {
+      const filteredReservations = reservations.filter(r =>
+        r.reservationMaker.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setRowData(filteredReservations);
+    } else {
+      setRowData(reservations);
+    }
+  }, [reservations, location.search]);
 
   const columnDefs: ColDef<Reservation>[] = [
     {
@@ -74,6 +85,20 @@ const ReservationList = () => {
       field: 'manager',
       sortable: true,
       filter: true,
+    },
+    {
+      headerName: '예약자',
+      field: 'reservationMaker',
+      sortable: true,
+      filter: true,
+      editable: true,
+    },
+    {
+      headerName: '예약자연락처',
+      field: 'reservationMakerContact',
+      sortable: true,
+      filter: true,
+      editable: true,
     },
     {
       headerName: '동작',
