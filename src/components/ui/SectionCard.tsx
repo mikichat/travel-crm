@@ -9,9 +9,7 @@ interface SectionCardProps {
 
 const SectionCard = ({ label, children, className = '' }: SectionCardProps) => (
   <div className={`flex mb-6 ${className}`}>
-    <div className="bg-primary text-white flex items-center justify-center px-4 py-8 rounded-l-xl min-w-[60px] font-bold text-lg">
-      <span style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>{label}</span>
-    </div>
+
     <AntdCard
       style={{ flex: 1, borderRadius: '0 12px 12px 0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderColor: '#D1C4E9', marginLeft: '-1px' }}
       styles={{ body: { padding: '24px' } }}
