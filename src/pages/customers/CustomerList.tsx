@@ -1,75 +1,84 @@
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../hooks/useCustomers';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Table, Space } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Space } from 'antd';
+// AG Grid
+import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
+// import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed as per AG Grid error #239
+import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'; // Import ModuleRegistry and AllCommunityModule
+import type { ColDef } from 'ag-grid-community';
 import type { Customer } from '../../types/customer';
-import React, { useMemo } from 'react';
+
+// Register the required feature modules with the Grid
+ModuleRegistry.registerModules([ AllCommunityModule ]);
 
 const CustomerList = () => {
   const { customers } = useCustomers();
   const navigate = useNavigate();
 
-  const nameFilters = useMemo(() => {
-    const uniqueNames = [...new Set(customers.map(c => c.name))];
-    return uniqueNames.map(name => ({ text: name, value: name }));
+  const gridRef = useRef<AgGridReact>(null);
+  const [rowData, setRowData] = useState<Customer[]>([]);
+
+  useEffect(() => {
+    setRowData(customers);
   }, [customers]);
 
-  const phoneFilters = useMemo(() => {
-    const uniquePhones = [...new Set(customers.map(c => c.phone))];
-    return uniquePhones.map(phone => ({ text: phone, value: phone }));
-  }, [customers]);
-
-  const emailFilters = useMemo(() => {
-    const uniqueEmails = [...new Set(customers.map(c => c.email))];
-    return uniqueEmails.map(email => ({ text: email, value: email }));
-  }, [customers]);
-
-  const columns: ColumnsType<Customer> = [
+  const columnDefs: ColDef<Customer>[] = [
     {
-      title: '이름',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      filters: nameFilters,
-      onFilter: (value, record) => record.name.includes(value as string),
-      render: (text: string, record: Customer) => <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/customers/${record.id}`)}>{text}</span>,
+      headerName: '이름',
+      field: 'name',
+      sortable: true,
+      filter: true,
+      cellRenderer: (params: any) => (
+        <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/customers/${params.data.id}`)}>{params.value}</span>
+      ),
     },
     {
-      title: '연락처',
-      dataIndex: 'phone',
-      key: 'phone',
-      sorter: (a, b) => a.phone.localeCompare(b.phone),
-      filters: phoneFilters,
-      onFilter: (value, record) => record.phone.includes(value as string),
+      headerName: '연락처',
+      field: 'phone',
+      sortable: true,
+      filter: true,
     },
     {
-      title: '이메일',
-      dataIndex: 'email',
-      key: 'email',
-      sorter: (a, b) => a.email.localeCompare(b.email),
-      filters: emailFilters,
-      onFilter: (value, record) => record.email.includes(value as string),
+      headerName: '이메일',
+      field: 'email',
+      sortable: true,
+      filter: true,
     },
     {
-      title: '등록일',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      headerName: '등록일',
+      field: 'createdAt',
+      sortable: true,
+      filter: true,
+      valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
     },
     {
-      title: '동작',
-      key: 'action',
-      render: (_, record) => (
+      headerName: '동작',
+      cellRenderer: (params: any) => (
         <Space size="middle">
-          <Button buttonColor="info" onClick={() => navigate(`/customers/${record.id}`)}>
+          <Button buttonColor="info" onClick={() => navigate(`/customers/${params.data.id}`)}>
             상세
           </Button>
         </Space>
       ),
+      minWidth: 100,
+      maxWidth: 150,
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
     },
   ];
+
+  const defaultColDef: ColDef = {
+    flex: 1,
+    minWidth: 100,
+    resizable: true,
+  };
+
+  const onGridReady = (params: any) => {
+    // console.log("Grid Ready", params);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
@@ -80,13 +89,16 @@ const CustomerList = () => {
             고객 등록
           </Button>
         </div>
-        <div className="overflow-x-auto">
-          <Table
-            columns={columns}
-            dataSource={customers.map(c => ({ ...c, key: c.id }))}
-            pagination={{ pageSize: 10 }}
-            rowKey="id"
-            className="rounded-lg overflow-hidden border border-lightViolet"
+        <div className="ag-theme-quartz" style={{ height: 500 }}>
+          <AgGridReact
+            ref={gridRef}
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            onGridReady={onGridReady}
+            pagination={true} // Enable pagination
+            paginationPageSize={10} // Set page size
+            paginationPageSizeSelector={[10, 20, 50]} // Allow page size selection
           />
         </div>
       </SectionCard>
