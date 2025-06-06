@@ -8,7 +8,18 @@ const initialSchedules: Schedule[] = [
     date: '2024-07-01',
     customerId: 1,
     description: '부산 해운대 투어',
-    memo: '부산 여행에 대한 추가 메모입니다.',
+    memo: JSON.stringify({
+      time: Date.now(),
+      blocks: [
+        {
+          type: 'paragraph',
+          data: {
+            text: '부산 여행에 대한 추가 메모입니다.',
+          },
+        },
+      ],
+      version: '2.29.1',
+    }),
     createdAt: '2024-06-10',
   },
   {
@@ -17,7 +28,18 @@ const initialSchedules: Schedule[] = [
     date: '2024-07-10',
     customerId: 2,
     description: '제주 올레길 트레킹',
-    memo: '제주도 여행에 대한 추가 메모입니다.',
+    memo: JSON.stringify({
+      time: Date.now(),
+      blocks: [
+        {
+          type: 'paragraph',
+          data: {
+            text: '제주도 여행에 대한 추가 메모입니다.',
+          },
+        },
+      ],
+      version: '2.29.1',
+    }),
     createdAt: '2024-06-12',
   },
 ];

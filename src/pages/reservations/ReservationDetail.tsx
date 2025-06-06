@@ -17,7 +17,7 @@ const ReservationDetail = () => {
   return (
     <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약정보">
-        <Descriptions column={1} bordered className="mb-4">
+        <Descriptions column={1} variant="bordered" className="mb-4">
           <Descriptions.Item label="여행 제목"><span className="font-semibold text-primary">{reservation.title}</span></Descriptions.Item>
           <Descriptions.Item label="여행 기간">{reservation.duration}</Descriptions.Item>
           <Descriptions.Item label="여행 지역">{reservation.region}</Descriptions.Item>
