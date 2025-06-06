@@ -17,6 +17,14 @@ const ScheduleDetail = () => {
 
   useEffect(() => {
     if (schedule && !editorRef.current) {
+      let editorData;
+      try {
+        editorData = schedule.memo ? JSON.parse(schedule.memo) : { blocks: [] };
+      } catch (e) {
+        console.error("Failed to parse schedule.memo:", e);
+        editorData = { blocks: [] }; // Fallback to empty data on error
+      }
+
       editorRef.current = new EditorJS({
         holder: 'editorjs-container',
         readOnly: true,
@@ -25,12 +33,12 @@ const ScheduleDetail = () => {
           list: List,
           paragraph: Paragraph,
         },
-        data: schedule.memo ? JSON.parse(schedule.memo) : { blocks: [] },
+        data: editorData,
       });
     }
 
     return () => {
-      if (editorRef.current) {
+      if (editorRef.current && typeof editorRef.current.destroy === 'function') {
         editorRef.current.destroy();
         editorRef.current = null;
       }

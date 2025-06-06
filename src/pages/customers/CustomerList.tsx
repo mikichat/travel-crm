@@ -6,7 +6,7 @@ import SectionCard from '../../components/ui/SectionCard';
 import { Space } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
-// import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed as per AG Grid error #239
+// import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the grid
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'; // Import ModuleRegistry and AllCommunityModule
 import type { ColDef } from 'ag-grid-community';
@@ -96,9 +96,9 @@ const CustomerList = () => {
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}
-            pagination={true} // Enable pagination
-            paginationPageSize={10} // Set page size
-            paginationPageSizeSelector={[10, 20, 50]} // Allow page size selection
+            pagination={true}
+            paginationPageSize={10}
+            paginationPageSizeSelector={[10, 20, 50]}
           />
         </div>
       </SectionCard>
