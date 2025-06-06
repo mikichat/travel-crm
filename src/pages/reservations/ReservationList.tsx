@@ -1,41 +1,85 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Table, Space } from 'antd';
+import { Table, Space, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { Reservation } from '../../types/reservation';
 
 const ReservationList = () => {
-  const { reservations, deleteReservation } = useReservations();
+  const { reservations, deleteReservation, updateReservation } = useReservations();
   const navigate = useNavigate();
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editedTitle, setEditedTitle] = useState<string>('');
+
+  const handleTitleClick = (record: Reservation) => {
+    setEditingId(record.id);
+    setEditedTitle(record.title);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(e.target.value);
+  };
+
+  const handleTitleBlur = async (record: Reservation) => {
+    if (editingId === record.id && editedTitle !== record.title) {
+      // Assuming useReservations provides an updateReservation function
+      await updateReservation(record.id, { ...record, title: editedTitle });
+    }
+    setEditingId(null);
+    setEditedTitle('');
+  };
 
   const columns: ColumnsType<Reservation> = [
     {
       title: '여행 제목',
       dataIndex: 'title',
       key: 'title',
-      render: (text: string, record: Reservation) => <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/reservations/${record.id}`)}>{text}</span>,
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      render: (text: string, record: Reservation) => (
+        editingId === record.id ? (
+          <Input
+            value={editedTitle}
+            onChange={handleTitleChange}
+            onBlur={() => handleTitleBlur(record)}
+            onPressEnter={() => handleTitleBlur(record)}
+            autoFocus
+          />
+        ) : (
+          <span
+            className="font-semibold text-primary cursor-pointer"
+            onClick={() => handleTitleClick(record)}
+          >
+            {text}
+          </span>
+        )
+      ),
     },
     {
       title: '여행 기간',
       dataIndex: 'duration',
       key: 'duration',
+      sorter: (a, b) => a.duration.localeCompare(b.duration),
     },
     {
       title: '여행 지역',
       dataIndex: 'region',
       key: 'region',
+      sorter: (a, b) => a.region.localeCompare(b.region),
     },
     {
       title: '미팅 일자',
       dataIndex: 'meetingDate',
       key: 'meetingDate',
+      sorter: (a, b) => new Date(a.meetingDate).getTime() - new Date(b.meetingDate).getTime(),
     },
     {
       title: '담당자',
       dataIndex: 'manager',
       key: 'manager',
+      sorter: (a, b) => a.manager.localeCompare(b.manager),
     },
     {
       title: '동작',

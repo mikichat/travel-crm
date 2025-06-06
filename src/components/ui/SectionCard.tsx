@@ -14,7 +14,7 @@ const SectionCard = ({ label, children, className = '' }: SectionCardProps) => (
     </div>
     <AntdCard
       style={{ flex: 1, borderRadius: '0 12px 12px 0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderColor: '#D1C4E9', marginLeft: '-1px' }}
-      bodyStyle={{ padding: '24px' }}
+      styles={{ body: { padding: '24px' } }}
     >
       {children}
     </AntdCard>
