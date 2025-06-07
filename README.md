@@ -1,195 +1,167 @@
-## 프로젝트 개요
+# 🧳 소규모 여행사 CRM 시스템
 
-# 💻 React + TypeScript + Vite + MariaDB 개발 규칙
-
-# 🧳 소규모 여행사 일정 및 견적 관리 시스템
-
-React + TypeScript + Vite 기반의 프론트엔드, MariaDB를 사용하는 소규모 여행사 맞춤 시스템입니다.
+React + TypeScript + Vite + MariaDB 기반의 소규모 여행사 맞춤 일정 및 견적 관리 시스템입니다.
 
 ## 🏗 기술 스택
 
-| 구분       | 기술                              |
-|------------|-----------------------------------|
-| 프론트엔드 | React, TypeScript, Vite, Ant Design |
-| 백엔드     | Node.js + Express (또는 FastAPI), Axios     |
-| DB         | MariaDB                           |
-| 툴        | Cursor, VSCode, Git                |
+| 구분       | 기술                                    |
+|------------|----------------------------------------|
+| 프론트엔드 | React, TypeScript, Vite, Ant Design   |
+| 백엔드     | Node.js + Express (또는 FastAPI)      |
+| 데이터베이스 | MariaDB, Axios                       |
+| 개발 도구  | Cursor, VSCode, Git                   |
 
-# 여행사 CRM 프로젝트 폴더 구조
+## 📁 프로젝트 구조
+
+```
 travel-crm/
 ├── public/
-│ ├── index.html
-│ └── favicon.ico
+│   ├── index.html
+│   └── favicon.ico
 ├── src/
-│ ├── components/ # 재사용 가능한 컴포넌트
-│ │ ├── ui/ # 기본 UI 컴포넌트 (Ant Design 기반)
-│ │ │ ├── Button.tsx
-│ │ │ ├── Input.tsx
-│ │ │ ├── Modal.tsx
-│ │ │ └── index.ts
-│ │ ├── layout/ # 레이아웃 컴포넌트 (Ant Design 기반)
-│ │ │ ├── Header.tsx
-│ │ │ ├── Sidebar.tsx
-│ │ │ ├── MainLayout.tsx
-│ │ │ └── index.ts
-│ │ ├── forms/ # 폼 관련 컴포넌트
-│ │ │ ├── CustomerForm.tsx
-│ │ │ ├── ScheduleForm.tsx
-│ │ │ └── index.ts
-│ │ └── common/ # 공통 컴포넌트
-│ │ ├── Loading.tsx
-│ │ ├── ErrorBoundary.tsx
-│ │ └── index.ts
-│ ├── pages/ # 페이지 컴포넌트 (Ant Design 기반)
-│ │ ├── customers/ # 고객 관리 페이지
-│ │ │ ├── CustomerList.tsx
-│ │ │ ├── CustomerDetail.tsx
-│ │ │ ├── CustomerCreate.tsx
-│ │ │ └── index.ts
-│ │ ├── schedules/ # 일정 관리 페이지
-│ │ │ ├── ScheduleList.tsx
-│ │ │ ├── ScheduleDetail.tsx
-│ │ │ ├── ScheduleCreate.tsx
-│ │ │ ├── ScheduleEdit.tsx # 새로 추가됨
-│ │ │ └── index.ts
-│ │ ├── dashboard/ # 대시보드
-│ │ │ ├── Dashboard.tsx
-│ │ │ ├── StatCards.tsx
-│ │ │ └── index.ts
-│ │ ├── reservations/ # 예약 관리 페이지
-│ │ │ ├── ReservationList.tsx
-│ │ │ ├── ReservationCreate.tsx
-│ │ │ ├── ReservationDetail.tsx
-│ │ │ ├── ReservationEdit.tsx
-│ │ │ └── index.ts
-│ │ └── auth/ # 인증 페이지
-│ │ ├── Login.tsx
-│ │ ├── Register.tsx
-│ │ └── index.ts
-│ ├── hooks/ # 커스텀 훅
-│ │ ├── useKeyboard.ts # 키보드 단축키 훅
-│ │ ├── useCustomers.ts # 고객 관리 훅
-│ │ ├── useSchedules.ts # 일정 관리 훅
-│ │ ├── useReservations.ts # 예약 관리 훅 (기존)
-│ │ └── index.ts
-│ ├── services/ # API 서비스
-│ │ ├── api.ts # API 기본 설정
-│ │ ├── customers.ts # 고객 API
-│ │ ├── schedules.ts # 일정 API
-│ │ └── auth.ts # 인증 API
-│ ├── types/ # TypeScript 타입 정의
-│ │ ├── customer.ts
-│ │ ├── schedule.ts
-│ │ ├── reservation.ts # 예약 타입 (기존)
-│ │ ├── api.ts
-│ │ └── index.ts
-│ ├── utils/ # 유틸리티 함수
-│ │ ├── constants.ts # 상수
-│ │ ├── formatters.ts # 포맷터 함수
-│ │ ├── validators.ts # 유효성 검사
-│ │ └── helpers.ts # 헬퍼 함수
-│ ├── store/ # 상태 관리 (옵션)
-│ │ ├── index.ts
-│ │ ├── customerStore.ts
-│ │ └── authStore.ts
-│ ├── styles/ # 스타일 파일
-│ │ ├── globals.css
-│ │ ├── components.css
-│ │ └── antd-overrides.css
-│ ├── assets/ # 정적 자원
-│ │ ├── images/
-│ │ ├── icons/
-│ │ └── fonts/
-│ ├── App.tsx
-│ ├── App.css
-│ ├── index.tsx
-│ └── index.css
-├── .env # 환경변수
-├── .env.local # 로컬 환경변수
-├── .gitignore
+│   ├── components/          # 재사용 가능한 컴포넌트
+│   │   ├── ui/             # 기본 UI 컴포넌트 (Ant Design 기반)
+│   │   ├── layout/         # 레이아웃 컴포넌트
+│   │   ├── forms/          # 폼 관련 컴포넌트
+│   │   └── common/         # 공통 컴포넌트
+│   ├── pages/              # 페이지 컴포넌트
+│   │   ├── customers/      # 고객 관리
+│   │   ├── schedules/      # 일정 관리
+│   │   ├── reservations/   # 예약 관리
+│   │   ├── dashboard/      # 대시보드
+│   │   └── auth/          # 인증
+│   ├── hooks/              # 커스텀 훅
+│   ├── services/           # API 서비스
+│   ├── types/              # TypeScript 타입 정의
+│   ├── utils/              # 유틸리티 함수
+│   ├── store/              # 상태 관리 (옵션)
+│   ├── styles/             # 스타일 파일
+│   └── assets/             # 정적 자원
+├── .env                    # 환경변수
 ├── package.json
 ├── tailwind.config.js
 ├── tsconfig.json
 └── README.md
+```
 
-
-# UI Ant Design 프레임워크 , Ag-grid 사용
-
-# MariaDB와의 연동은 백엔드(Node.js + Express 등)에서 API
-
-## 주요 폴더 설명
+## 📂 주요 디렉토리 설명
 
 ### `src/components/`
-- **ui/**: 기본 UI 컴포넌트 (Button, Input 등) - **Ant Design 기반으로 교체됨**
-- **layout/**: 레이아웃 관련 컴포넌트 - **Ant Design 기반으로 교체됨**
-- **forms/**: 폼 관련 컴포넌트
-- **common/**: 공통으로 사용되는 컴포넌트
+- **ui/**: Ant Design 기반 기본 UI 컴포넌트 (Button, Input, Modal 등)
+- **layout/**: 레이아웃 관련 컴포넌트 (Header, Sidebar, MainLayout)
+- **forms/**: 폼 관련 컴포넌트 (CustomerForm, ScheduleForm 등)
+- **common/**: 공통 컴포넌트 (Loading, ErrorBoundary 등)
 
 ### `src/pages/`
-- 각 기능별로 폴더 분리 - **모든 페이지 Ant Design 기반으로 업데이트됨**
-- 페이지별 컴포넌트와 하위 컴포넌트 포함
+- **customers/**: 고객 관리 페이지 (목록, 상세, 생성)
+- **schedules/**: 일정 관리 페이지 (목록, 상세, 생성, 수정)
+- **reservations/**: 예약 관리 페이지 (목록, 생성, 상세, 수정)
+- **dashboard/**: 대시보드 및 통계 페이지
+- **auth/**: 로그인, 회원가입 페이지
 
 ### `src/hooks/`
-- 커스텀 훅 모음
-- 비즈니스 로직과 UI 분리
-- `useReservations.ts`에 예약 관리 CRUD 훅 구현 (기존)
-- `useSchedules.ts`에 일정 관리 CRUD 훅 구현 (수정 기능 추가)
+- **useKeyboard.ts**: 키보드 단축키 관리
+- **useCustomers.ts**: 고객 관리 CRUD 훅
+- **useSchedules.ts**: 일정 관리 CRUD 훅 (수정 기능 포함)
+- **useReservations.ts**: 예약 관리 CRUD 훅
 
 ### `src/services/`
-- API 호출 관련 함수들
-- 백엔드와의 통신 로직
+- **api.ts**: API 기본 설정
+- **customers.ts**: 고객 관련 API
+- **schedules.ts**: 일정 관련 API
+- **auth.ts**: 인증 관련 API
 
 ### `src/types/`
-- TypeScript 타입 정의
-- 데이터 모델 타입
+- **customer.ts**: 고객 관련 타입
+- **schedule.ts**: 일정 관련 타입
+- **reservation.ts**: 예약 관련 타입
+- **api.ts**: API 응답 타입
 
-### `src/utils/`
-- 유틸리티 함수들
-- 상수, 포맷터, 검증 함수 등
+## 📝 명명 규칙
 
-## 명명 규칙
+### 파일명 규칙
+- **컴포넌트**: PascalCase (`CustomerList.tsx`)
+- **훅**: camelCase (`useCustomers.ts`)
+- **유틸리티**: camelCase (`formatters.ts`)
+- **타입**: camelCase (`customer.ts`)
 
-### 파일명
-- **컴포넌트**: PascalCase (CustomerList.tsx)
-- **훅**: camelCase (useCustomers.ts)
-- **유틸리티**: camelCase (formatters.ts)
-- **타입**: camelCase (customer.ts)
-
-### 폴더명
+### 폴더명 규칙
 - **kebab-case** 또는 **camelCase** 일관성 유지
 - 기능별 그룹핑
 
-## 설정 파일 구성
+## ⚙️ 환경 설정
 
-### `.env` 파일
+### `.env` 파일 예시
 ```env
 REACT_APP_API_URL=http://localhost:3001/api
 REACT_APP_APP_NAME=Travel CRM
 ```
 
-### `tailwind.config.js`
+### Tailwind CSS 설정
 ```javascript
+// tailwind.config.js
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {
-    }
+    extend: {}
   },
   plugins: [],
 }
 ```
 
-### UI 프레임워크 변경: Ant Design 도입
-이 프로젝트는 기존 Tailwind CSS에서 Ant Design으로 UI 프레임워크를 전환하여 더욱 세련되고 강력한 사용자 경험을 제공합니다.
+## 🎨 UI 프레임워크: Ant Design
 
+이 프로젝트는 **Ant Design**을 주요 UI 프레임워크로 사용하여 세련되고 일관된 사용자 경험을 제공합니다.
+
+### 주요 특징
 - **설치된 패키지**: `antd`
-- **적용된 스타일**: 바이올렛 계열의 커스텀 테마가 적용되었습니다.
-- **주요 변경 사항**: 
-    - `src/main.tsx`: Ant Design 기본 CSS 임포트 (`antd/dist/reset.css`)
-    - `src/components/ui/`: `Button`, `Input`, `Card`, `SectionCard` 컴포넌트가 Ant Design 기반으로 재작성되었습니다.
-    - `src/components/layout/`: `Header`와 `MainLayout` 컴포넌트가 Ant Design `Layout` 및 `Menu` 컴포넌트를 사용하여 업데이트되었습니다.
-    - `src/pages/`: 모든 고객, 일정, 예약, 대시보드 페이지가 Ant Design 컴포넌트를 활용하도록 업데이트되었습니다.
-    - `src/hooks/useSchedules.ts`: 일정 수정(`updateSchedule`) 기능이 추가되었습니다.
-    - `src/pages/schedules/ScheduleEdit.tsx`: 새로운 일정 수정 페이지가 추가되고 라우팅에 연결되었습니다.
-    - `tailwind.config.js`: Ant Design 사용에 따라 Tailwind CSS의 커스텀 컬러 정의가 제거되었습니다.
-    - **참고**: `src/App.css` 파일은 여전히 불필요한 스타일을 포함하고 있을 수 있습니다. UI가 예상대로 작동하지 않는다면, `src/App.css` 파일을 열어 `@tailwind base; @tailwind components; @tailwind utilities;` 세 줄만 남기고 모든 내용을 수동으로 삭제하는 것을 권장합니다.
+- **테마**: 바이올렛 계열 커스텀 테마 적용
+- **그리드 시스템**: Ag-grid 사용
+
+### 주요 변경 사항
+- `src/main.tsx`: Ant Design CSS 임포트 (`antd/dist/reset.css`)
+- `src/components/ui/`: Button, Input, Card 등 Ant Design 기반 재작성
+- `src/components/layout/`: Header, MainLayout Ant Design Layout 사용
+- `src/pages/`: 모든 페이지 Ant Design 컴포넌트 활용
+- `src/hooks/useSchedules.ts`: 일정 수정(`updateSchedule`) 기능 추가
+- `src/pages/schedules/ScheduleEdit.tsx`: 새로운 일정 수정 페이지 추가
+
+## 🔧 개발 가이드
+
+### 데이터베이스 연동
+- MariaDB와의 연동은 백엔드(Node.js + Express)에서 API를 통해 처리
+- 프론트엔드에서는 Axios를 사용하여 API 호출
+
+### 스타일링 주의사항
+> **참고**: `src/App.css` 파일에 불필요한 스타일이 포함되어 있을 수 있습니다. 
+> UI가 예상대로 작동하지 않는다면, `src/App.css` 파일을 열어 다음 세 줄만 남기고 모든 내용을 삭제하는 것을 권장합니다:
+> ```css
+> @tailwind base;
+> @tailwind components; 
+> @tailwind utilities;
+> ```
+
+## 🚀 시작하기
+
+1. 의존성 설치
+```bash
+npm install
+```
+
+2. 환경변수 설정
+```bash
+cp .env.example .env
+```
+
+3. 개발 서버 실행
+```bash
+npm run dev
+```
+
+## 📋 주요 기능
+
+- 👥 **고객 관리**: 고객 정보 등록, 수정, 조회
+- 📅 **일정 관리**: 여행 일정 생성, 수정, 관리
+- 🎫 **예약 관리**: 예약 생성, 수정, 상태 관리
+- 📊 **대시보드**: 통계 및 현황 조회
+- 🔐 **인증**: 로그인, 회원가입
