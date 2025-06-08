@@ -15,6 +15,8 @@ React + TypeScript + Vite + MariaDB 기반의 소규모 여행사 맞춤 일정 
 
 ```
 travel-crm/
+├── backend/               # 백엔드 프로젝트 root
+├── backend/src/
 ├── public/
 │   ├── index.html
 │   └── favicon.ico
