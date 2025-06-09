@@ -4,53 +4,67 @@ import { useSchedules } from '../../hooks/useSchedules';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm, Input as AntdInput } from 'antd';
+import { Form as AntdForm, Input as AntdInput, Spin, Alert, message } from 'antd';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
+import type { Schedule } from '../../types/schedule';
 
 const ScheduleEdit = () => {
   const { id } = useParams();
   const { getScheduleById, updateSchedule } = useSchedules();
   const navigate = useNavigate();
-  const schedule = getScheduleById(Number(id));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
 
   const [form] = AntdForm.useForm();
   const editorRef = useRef<EditorJS | null>(null);
 
   useEffect(() => {
-    if (schedule) {
-      form.setFieldsValue({
-        title: schedule.title,
-        date: schedule.date,
-        customerId: schedule.customerId,
-        description: schedule.description,
-        // memo는 Editor.js로 처리되므로 AntdForm에서 직접 설정하지 않습니다.
-      });
-
-      // Editor.js 초기화
-      if (!editorRef.current) {
-        let editorData;
-        try {
-          editorData = schedule.memo ? JSON.parse(schedule.memo) : { blocks: [] };
-        } catch (e) {
-          console.error("Failed to parse schedule.memo in ScheduleEdit:", e);
-          editorData = { blocks: [] };
-        }
-
-        editorRef.current = new EditorJS({
-          holder: 'schedule-memo-editor', // 고유한 holder ID
-          readOnly: false, // 편집 모드이므로 readOnly는 false
-          tools: {
-            header: Header,
-            list: List,
-            paragraph: Paragraph,
-          },
-          data: editorData,
+    if (!id) return;
+    setLoading(true);
+    getScheduleById(Number(id))
+      .then(data => {
+        setSchedule(data);
+        setError(null);
+        
+        // 폼 데이터 설정
+        form.setFieldsValue({
+          title: data.title,
+          date: data.date,
+          customerId: data.customerId,
+          description: data.description,
         });
-      }
-    }
+
+        // Editor.js 초기화
+        if (!editorRef.current) {
+          let editorData;
+          try {
+            editorData = data.memo ? JSON.parse(data.memo) : { blocks: [] };
+          } catch (e) {
+            console.error("Failed to parse schedule.memo in ScheduleEdit:", e);
+            editorData = { blocks: [] };
+          }
+
+          editorRef.current = new EditorJS({
+            holder: 'schedule-memo-editor',
+            readOnly: false,
+            tools: {
+              header: Header,
+              list: List,
+              paragraph: Paragraph,
+            },
+            data: editorData,
+          });
+        }
+      })
+      .catch(err => {
+        setError('일정 정보를 찾을 수 없습니다.');
+        setSchedule(null);
+      })
+      .finally(() => setLoading(false));
 
     // 컴포넌트 언마운트 시 Editor.js 인스턴스 정리
     return () => {
@@ -59,30 +73,45 @@ const ScheduleEdit = () => {
         editorRef.current = null;
       }
     };
-  }, [schedule, form]);
+  }, [id, form]);
 
   const onFinish = async (values: any) => {
-    // Editor.js에서 memo 데이터 가져오기
-    let memoData = null;
-    if (editorRef.current) {
-      try {
-        const outputData = await editorRef.current.save();
-        memoData = JSON.stringify(outputData);
-      } catch (error) {
-        console.error('Saving failed: ', error);
+    try {
+      // Editor.js에서 memo 데이터 가져오기
+      let memoData = null;
+      if (editorRef.current) {
+        try {
+          const outputData = await editorRef.current.save();
+          memoData = JSON.stringify(outputData);
+        } catch (error) {
+          console.error('Saving failed: ', error);
+        }
       }
-    }
 
-    const updatedValues = {
-      ...values,
-      memo: memoData, // Editor.js에서 가져온 memo 데이터 추가
-    };
-    updateSchedule(Number(id), updatedValues);
-    navigate(`/schedules/${id}`);
+      const updatedValues = {
+        ...values,
+        memo: memoData,
+      };
+      
+      await updateSchedule(Number(id), updatedValues);
+      message.success('일정이 성공적으로 수정되었습니다!');
+      navigate(`/schedules/${id}`);
+    } catch (error) {
+      console.error('일정 수정 오류:', error);
+      message.error('일정 수정에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
-  if (!schedule) {
-    return <div className="text-center text-dangerRed mt-10">일정 정보를 찾을 수 없습니다.</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error || !schedule) {
+    return <Alert message={error || '일정 정보를 찾을 수 없습니다.'} type="error" showIcon className="mt-10" />;
   }
 
   return (
@@ -93,7 +122,6 @@ const ScheduleEdit = () => {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={form.getFieldsValue()} // 초기값은 useEffect에서 설정
         >
           <AntdForm.Item
             label={<span className="block text-primary font-semibold">제목</span>}

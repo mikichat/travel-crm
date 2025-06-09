@@ -4,43 +4,71 @@ import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm, Input as AntdInput } from 'antd';
+import { Form as AntdForm, Input as AntdInput, Spin, Alert, message } from 'antd';
+import type { Reservation } from '../../types/reservation';
 
 const ReservationEdit = () => {
   const { id } = useParams();
   const { getReservationById, updateReservation } = useReservations();
   const navigate = useNavigate();
-  const reservation = getReservationById(Number(id));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reservation, setReservation] = useState<Reservation | null>(null);
 
   const [form] = AntdForm.useForm();
 
   useEffect(() => {
-    if (reservation) {
-      form.setFieldsValue({
-        title: reservation.title,
-        duration: reservation.duration,
-        region: reservation.region,
-        meetingDate: reservation.meetingDate,
-        meetingTime: reservation.meetingTime,
-        meetingPlace: reservation.meetingPlace,
-        manager: reservation.manager,
-        reservationMaker: reservation.reservationMaker || '',
-        reservationMakerContact: reservation.reservationMakerContact || '',
-        importantDocs: reservation.importantDocs || '',
-        currencyInfo: reservation.currencyInfo || '',
-        otherItems: reservation.otherItems || '',
-        memo: reservation.memo || '',
-      });
-    }
-  }, [reservation, form]);
+    if (!id) return;
+    setLoading(true);
+    getReservationById(Number(id))
+      .then(data => {
+        setReservation(data);
+        setError(null);
+        // 폼 데이터 설정
+        form.setFieldsValue({
+          title: data.title,
+          duration: data.duration,
+          region: data.region,
+          meetingDate: data.meetingDate,
+          meetingTime: data.meetingTime,
+          meetingPlace: data.meetingPlace,
+          manager: data.manager,
+          reservationMaker: data.reservationMaker || '',
+          reservationMakerContact: data.reservationMakerContact || '',
+          importantDocs: data.importantDocs || '',
+          currencyInfo: data.currencyInfo || '',
+          otherItems: data.otherItems || '',
+          memo: data.memo || '',
+        });
+      })
+      .catch(err => {
+        setError('예약 정보를 찾을 수 없습니다.');
+        setReservation(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id, form]);
 
-  const onFinish = (values: any) => {
-    updateReservation(Number(id), values);
-    navigate(`/reservations/${id}`);
+  const onFinish = async (values: any) => {
+    try {
+      await updateReservation(Number(id), values);
+      message.success('예약이 성공적으로 수정되었습니다!');
+      navigate(`/reservations/${id}`);
+    } catch (error) {
+      console.error('예약 수정 오류:', error);
+      message.error('예약 수정에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
-  if (!reservation) {
-    return <div className="text-center text-dangerRed mt-10">예약 정보를 찾을 수 없습니다.</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error || !reservation) {
+    return <Alert message={error || '예약 정보를 찾을 수 없습니다.'} type="error" showIcon className="mt-10" />;
   }
 
   return (
@@ -51,7 +79,6 @@ const ReservationEdit = () => {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={form.getFieldsValue()}
         >
           <AntdForm.Item
             label={<span className="block text-primary font-semibold">여행 제목</span>}

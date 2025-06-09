@@ -4,20 +4,42 @@ import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm, Input as AntdInput } from 'antd';
+import { Form as AntdForm, Input as AntdInput, message } from 'antd';
 
 const ReservationCreate = () => {
   const { addReservation } = useReservations();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [form] = AntdForm.useForm();
 
-  const onFinish = (values: any) => {
-    addReservation({
-      id: Date.now(),
-      ...values,
-    });
-    navigate('/reservations');
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      await addReservation({
+        title: values.title,
+        duration: values.duration,
+        region: values.region,
+        meetingDate: values.meetingDate,
+        meetingTime: values.meetingTime,
+        meetingPlace: values.meetingPlace,
+        manager: values.manager,
+        reservationMaker: values.reservationMaker,
+        reservationMakerContact: values.reservationMakerContact,
+        importantDocs: values.importantDocs || '',
+        currencyInfo: values.currencyInfo || '',
+        otherItems: values.otherItems || '',
+        memo: values.memo || '',
+      });
+      
+      message.success('예약이 성공적으로 등록되었습니다!');
+      navigate('/reservations');
+    } catch (error) {
+      console.error('예약 등록 오류:', error);
+      message.error('예약 등록에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -129,8 +151,23 @@ const ReservationCreate = () => {
           </SectionCard>
 
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Button type="primary" htmlType="submit" buttonColor="secondary">등록</Button>
-            <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate('/reservations')}>취소</Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              buttonColor="secondary"
+              disabled={loading}
+            >
+              {loading ? '등록 중...' : '등록'}
+            </Button>
+            <Button
+              type="default"
+              htmlType="button"
+              buttonColor="light"
+              onClick={() => navigate('/reservations')}
+              disabled={loading}
+            >
+              취소
+            </Button>
           </div>
         </AntdForm>
       </SectionCard>

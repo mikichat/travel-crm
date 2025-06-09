@@ -202,20 +202,139 @@ module.exports = {
 
 ## 🚀 시작하기
 
-1. 의존성 설치
+### 📋 사전 요구사항
+
+- **Node.js**: 18.0.0 이상
+- **npm**: 9.0.0 이상
+- **MariaDB/MySQL**: 데이터베이스 서버
+- **Git**: 버전 관리
+
+### 🔧 프론트엔드 실행 (React + Vite)
+
+1. **프로젝트 루트로 이동**
+```bash
+cd travel-crm
+```
+
+2. **의존성 설치**
 ```bash
 npm install
 ```
 
-2. 환경변수 설정
+3. **환경변수 설정** (선택사항)
 ```bash
-cp .env.example .env
+# .env 파일 생성 (필요한 경우)
+echo "VITE_API_URL=http://localhost:3001/api" > .env
 ```
 
-3. 개발 서버 실행
+4. **개발 서버 실행**
 ```bash
 npm run dev
 ```
+
+5. **브라우저에서 확인**
+- 프론트엔드: http://localhost:5173
+- Vite 개발 서버가 자동으로 실행됩니다
+
+### 🔧 백엔드 실행 (Node.js + Express + SQLite)
+
+1. **백엔드 디렉토리로 이동**
+```bash
+cd backend
+```
+
+2. **의존성 설치**
+```bash
+npm install
+```
+
+3. **환경변수 설정** (선택사항)
+```bash
+# .env 파일 생성 (필요한 경우)
+echo "PORT=3001" > .env
+```
+
+4. **백엔드 서버 실행**
+```bash
+npm start
+```
+
+5. **API 서버 확인**
+- 백엔드: http://localhost:3001
+- API 엔드포인트: http://localhost:3001/api
+- 상태 확인: http://localhost:3001/api/health
+
+### 🗄️ 데이터베이스 (SQLite)
+
+이 프로젝트는 **SQLite**를 사용하여 간단하고 빠른 설정을 제공합니다.
+
+**SQLite 장점:**
+- ✅ **설치 불필요**: 별도 데이터베이스 서버 설치 없음
+- ✅ **파일 기반**: `data/travel_crm.db` 파일 하나로 모든 데이터 관리
+- ✅ **자동 초기화**: 서버 시작 시 자동으로 테이블 생성
+- ✅ **Zero Configuration**: 설정 파일만 있으면 바로 사용
+
+**데이터베이스 파일 위치:**
+```
+backend/data/travel_crm.db
+```
+
+**자동 생성되는 테이블:**
+- `users` - 사용자 정보
+- `customers` - 고객 정보  
+- `schedules` - 일정 정보
+- `reservations` - 예약 정보
+
+### 🚀 전체 애플리케이션 실행
+
+**터미널 1 (백엔드)**
+```bash
+cd backend
+npm install
+npm start
+```
+
+**터미널 2 (프론트엔드)**
+```bash
+cd travel-crm
+npm install
+npm run dev
+```
+
+### 📝 주요 스크립트
+
+#### 프론트엔드 스크립트
+```bash
+npm run dev          # 개발 서버 실행 (Vite)
+npm run build        # 프로덕션 빌드
+npm run lint         # ESLint 검사
+npm run lint:fix     # ESLint 자동 수정
+npm run type-check   # TypeScript 타입 검사
+```
+
+#### 백엔드 스크립트
+```bash
+npm start            # 개발 서버 실행 (ts-node)
+npm test             # 테스트 실행
+```
+
+### 🔍 문제 해결
+
+#### 프론트엔드 문제
+- **포트 충돌**: `npm run dev -- --port 3000` (다른 포트 사용)
+- **의존성 문제**: `rm -rf node_modules package-lock.json && npm install`
+- **TypeScript 오류**: `npm run type-check`로 타입 검사
+
+#### 백엔드 문제
+- **데이터베이스 연결 실패**: `.env` 파일의 데이터베이스 설정 확인
+- **포트 충돌**: `PORT=3002 npm start` (다른 포트 사용)
+- **TypeScript 컴파일 오류**: `npx tsc --noEmit`로 타입 검사
+
+### 🌐 접속 정보
+
+- **프론트엔드**: http://localhost:5173
+- **백엔드 API**: http://localhost:3001
+- **API 문서**: http://localhost:3001/api (개발 중)
 
 ## 📋 주요 기능
 
@@ -223,4 +342,4 @@ npm run dev
 - 📅 **일정 관리**: 여행 일정 생성, 수정, 관리
 - 🎫 **예약 관리**: 예약 생성, 수정, 상태 관리
 - 📊 **대시보드**: 통계 및 현황 조회
-- �� **인증**: 로그인, 회원가입# 자동 push 테스트
+- 🔐 **인증**: 로그인, 회원가입# 자동 push 테스트

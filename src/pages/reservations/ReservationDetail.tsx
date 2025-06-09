@@ -1,23 +1,51 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
-import { Card as AntdCard, Descriptions } from 'antd';
+import { useEffect, useState } from 'react';
+import { Descriptions, Spin, Alert } from 'antd';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
+import type { Reservation } from '../../types/reservation';
 
 const ReservationDetail = () => {
   const { id } = useParams();
   const { getReservationById, deleteReservation } = useReservations();
   const navigate = useNavigate();
-  const reservation = getReservationById(Number(id));
 
-  if (!reservation) {
-    return <div className="text-center text-dangerRed mt-10">예약 정보를 찾을 수 없습니다.</div>;
+  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    getReservationById(Number(id))
+      .then(data => {
+        setReservation(data);
+        setError(null);
+      })
+      .catch(err => {
+        setError('예약 정보를 찾을 수 없습니다.');
+        setReservation(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error || !reservation) {
+    return <Alert message={error || '예약 정보를 찾을 수 없습니다.'} type="error" showIcon className="mt-10" />;
   }
 
   return (
     <div className="max-w-xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약정보">
-        <Descriptions column={1} variant="bordered" className="mb-4">
+        <Descriptions column={1} bordered className="mb-4">
           <Descriptions.Item label="여행 제목"><span className="font-semibold text-primary">{reservation.title}</span></Descriptions.Item>
           <Descriptions.Item label="여행 기간">{reservation.duration}</Descriptions.Item>
           <Descriptions.Item label="여행 지역">{reservation.region}</Descriptions.Item>

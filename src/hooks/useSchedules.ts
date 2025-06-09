@@ -1,71 +1,133 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Schedule } from '../types/schedule';
 
-const initialSchedules: Schedule[] = [
-  {
-    id: 1,
-    title: '부산 여행',
-    date: '2024-07-01',
-    customerId: 1,
-    description: '부산 해운대 투어',
-    memo: JSON.stringify({
-      time: Date.now(),
-      blocks: [
-        {
-          type: 'paragraph',
-          data: {
-            text: '부산 여행에 대한 추가 메모입니다.',
-          },
-        },
-      ],
-      version: '2.29.1',
-    }),
-    createdAt: '2024-06-10',
-  },
-  {
-    id: 2,
-    title: '제주도 여행',
-    date: '2024-07-10',
-    customerId: 2,
-    description: '제주 올레길 트레킹',
-    memo: JSON.stringify({
-      time: Date.now(),
-      blocks: [
-        {
-          type: 'paragraph',
-          data: {
-            text: '제주도 여행에 대한 추가 메모입니다.',
-          },
-        },
-      ],
-      version: '2.29.1',
-    }),
-    createdAt: '2024-06-12',
-  },
-];
+const API_BASE_URL = 'http://localhost:3001/api';
 
 export function useSchedules() {
-  const [schedules, setSchedules] = useState<Schedule[]>(initialSchedules);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addSchedule = (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
-    const newSchedule: Schedule = {
-      ...schedule,
-      id: Date.now(),
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    setSchedules((prev) => [...prev, newSchedule]);
+  // 일정 목록 조회
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/schedules`);
+      if (!response.ok) {
+        throw new Error('일정 조회 실패');
+      }
+      const data = await response.json();
+      setSchedules(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일정 조회 실패');
+      console.error('일정 조회 오류:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getScheduleById = (id: number) =>
-    schedules.find((s) => s.id === id);
+  // 일정 등록
+  const addSchedule = async (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/schedules`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(schedule),
+      });
 
-  const updateSchedule = (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
-    setSchedules((prev) =>
-      prev.map((schedule) =>
-        schedule.id === id ? { ...schedule, ...updatedSchedule } : schedule
-      )
-    );
+      if (!response.ok) {
+        throw new Error('일정 등록 실패');
+      }
+
+      const newSchedule = await response.json();
+      setSchedules(prev => [newSchedule, ...prev]);
+      return newSchedule;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일정 등록 실패');
+      console.error('일정 등록 오류:', err);
+      throw err;
+    }
   };
 
-  return { schedules, addSchedule, getScheduleById, updateSchedule };
+  // 특정 일정 조회
+  const getScheduleById = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
+      if (!response.ok) {
+        throw new Error('일정 조회 실패');
+      }
+      return await response.json();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일정 조회 실패');
+      console.error('일정 조회 오류:', err);
+      throw err;
+    }
+  };
+
+  // 일정 수정
+  const updateSchedule = async (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedSchedule),
+      });
+
+      if (!response.ok) {
+        throw new Error('일정 수정 실패');
+      }
+
+      const updatedData = await response.json();
+      setSchedules(prev =>
+        prev.map(schedule =>
+          schedule.id === id ? updatedData : schedule
+        )
+      );
+      return updatedData;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일정 수정 실패');
+      console.error('일정 수정 오류:', err);
+      throw err;
+    }
+  };
+
+  // 일정 삭제
+  const deleteSchedule = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('일정 삭제 실패');
+      }
+
+      setSchedules(prev => prev.filter(schedule => schedule.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '일정 삭제 실패');
+      console.error('일정 삭제 오류:', err);
+      throw err;
+    }
+  };
+
+  // 컴포넌트 마운트 시 일정 목록 조회
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
+  return { 
+    schedules, 
+    loading, 
+    error, 
+    addSchedule, 
+    getScheduleById, 
+    updateSchedule, 
+    deleteSchedule,
+    refetch: fetchSchedules
+  };
 } 

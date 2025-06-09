@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSchedules } from '../../hooks/useSchedules';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space } from 'antd';
+import { Space, message } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -16,7 +16,7 @@ import type { Schedule } from '../../types/schedule';
 ModuleRegistry.registerModules([ AllCommunityModule ]);
 
 const ScheduleList = () => {
-  const { schedules } = useSchedules();
+  const { schedules, deleteSchedule } = useSchedules();
   const navigate = useNavigate();
 
   const gridRef = useRef<AgGridReact>(null);
@@ -25,6 +25,18 @@ const ScheduleList = () => {
   useEffect(() => {
     setRowData(schedules);
   }, [schedules]);
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      try {
+        await deleteSchedule(id);
+        message.success('일정이 성공적으로 삭제되었습니다!');
+      } catch (error) {
+        console.error('일정 삭제 오류:', error);
+        message.error('일정 삭제에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
 
   const columnDefs: ColDef<Schedule>[] = [
     {
@@ -66,10 +78,13 @@ const ScheduleList = () => {
           <Button buttonColor="secondary" onClick={() => navigate(`/schedules/${params.data.id}/edit`)}>
             수정
           </Button>
+          <Button buttonColor="danger" onClick={() => handleDelete(params.data.id)}>
+            삭제
+          </Button>
         </Space>
       ),
-      minWidth: 100,
-      maxWidth: 150,
+      minWidth: 150,
+      maxWidth: 200,
       cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
     },
   ];

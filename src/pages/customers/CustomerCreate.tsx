@@ -4,21 +4,34 @@ import { useCustomers } from '../../hooks/useCustomers';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import SectionCard from '../../components/ui/SectionCard';
-import { Form as AntdForm, Input as AntdInput } from 'antd';
+import { Form as AntdForm, Input as AntdInput, message } from 'antd';
 
 const CustomerCreate = () => {
   const { addCustomer } = useCustomers();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   
   const [form] = AntdForm.useForm();
 
-  const onFinish = (values: any) => {
-    addCustomer({
-      id: Date.now(),
-      createdAt: new Date().toISOString().split('T')[0],
-      ...values,
-    });
-    navigate('/customers');
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      await addCustomer({
+        name: values.name,
+        phone: values.phone,
+        email: values.email,
+        address: values.address || '',
+        notes: values.notes || '',
+      });
+      
+      message.success('고객이 성공적으로 등록되었습니다!');
+      navigate('/customers');
+    } catch (error) {
+      console.error('고객 등록 오류:', error);
+      message.error('고객 등록에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,9 +70,30 @@ const CustomerCreate = () => {
           >
             <Input />
           </AntdForm.Item>
+          <AntdForm.Item
+            label={<span className="block text-primary font-semibold">메모</span>}
+            name="notes"
+          >
+            <AntdInput.TextArea rows={3} />
+          </AntdForm.Item>
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <Button type="primary" htmlType="submit" buttonColor="secondary">등록</Button>
-            <Button type="default" htmlType="button" buttonColor="light" onClick={() => navigate('/customers')}>취소</Button>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              buttonColor="secondary"
+              disabled={loading}
+            >
+              {loading ? '등록 중...' : '등록'}
+            </Button>
+            <Button 
+              type="default" 
+              htmlType="button" 
+              buttonColor="light" 
+              onClick={() => navigate('/customers')}
+              disabled={loading}
+            >
+              취소
+            </Button>
           </div>
         </AntdForm>
       </SectionCard>

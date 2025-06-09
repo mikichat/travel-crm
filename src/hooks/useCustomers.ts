@@ -1,39 +1,133 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Customer } from '../types/customer';
 
-const initialCustomers: Customer[] = [
-  {
-    id: 1,
-    name: '홍길동',
-    phone: '010-1234-5678',
-    email: 'hong@example.com',
-    address: '서울시 강남구',
-    createdAt: '2024-06-01',
-  },
-  {
-    id: 2,
-    name: '김영희',
-    phone: '010-8765-4321',
-    email: 'kim@example.com',
-    address: '부산시 해운대구',
-    createdAt: '2024-06-02',
-  },
-];
+const API_BASE_URL = 'http://localhost:3001/api';
 
 export function useCustomers() {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addCustomer = (customer: Omit<Customer, 'id' | 'createdAt'>) => {
-    const newCustomer: Customer = {
-      ...customer,
-      id: Date.now(),
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    setCustomers((prev) => [...prev, newCustomer]);
+  // 고객 목록 조회
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/customers`);
+      if (!response.ok) {
+        throw new Error('고객 조회 실패');
+      }
+      const data = await response.json();
+      setCustomers(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '고객 조회 실패');
+      console.error('고객 조회 오류:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getCustomerById = (id: number) =>
-    customers.find((c) => c.id === id);
+  // 고객 등록
+  const addCustomer = async (customer: Omit<Customer, 'id' | 'createdAt'>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/customers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(customer),
+      });
 
-  return { customers, addCustomer, getCustomerById };
+      if (!response.ok) {
+        throw new Error('고객 등록 실패');
+      }
+
+      const newCustomer = await response.json();
+      setCustomers(prev => [newCustomer, ...prev]);
+      return newCustomer;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '고객 등록 실패');
+      console.error('고객 등록 오류:', err);
+      throw err;
+    }
+  };
+
+  // 특정 고객 조회
+  const getCustomerById = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/customers/${id}`);
+      if (!response.ok) {
+        throw new Error('고객 조회 실패');
+      }
+      return await response.json();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '고객 조회 실패');
+      console.error('고객 조회 오류:', err);
+      throw err;
+    }
+  };
+
+  // 고객 수정
+  const updateCustomer = async (id: number, updatedCustomer: Partial<Omit<Customer, 'id' | 'createdAt'>>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCustomer),
+      });
+
+      if (!response.ok) {
+        throw new Error('고객 수정 실패');
+      }
+
+      const updatedData = await response.json();
+      setCustomers(prev =>
+        prev.map(customer =>
+          customer.id === id ? updatedData : customer
+        )
+      );
+      return updatedData;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '고객 수정 실패');
+      console.error('고객 수정 오류:', err);
+      throw err;
+    }
+  };
+
+  // 고객 삭제
+  const deleteCustomer = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('고객 삭제 실패');
+      }
+
+      setCustomers(prev => prev.filter(customer => customer.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '고객 삭제 실패');
+      console.error('고객 삭제 오류:', err);
+      throw err;
+    }
+  };
+
+  // 컴포넌트 마운트 시 고객 목록 조회
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  return { 
+    customers, 
+    loading, 
+    error, 
+    addCustomer, 
+    getCustomerById, 
+    updateCustomer, 
+    deleteCustomer,
+    refetch: fetchCustomers
+  };
 } 

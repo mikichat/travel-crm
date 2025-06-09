@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../hooks/useCustomers';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space } from 'antd';
+import { Space, message } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -16,7 +16,7 @@ import type { Customer } from '../../types/customer';
 ModuleRegistry.registerModules([ AllCommunityModule ]);
 
 const CustomerList = () => {
-  const { customers } = useCustomers();
+  const { customers, deleteCustomer } = useCustomers();
   const navigate = useNavigate();
 
   const gridRef = useRef<AgGridReact>(null);
@@ -25,6 +25,18 @@ const CustomerList = () => {
   useEffect(() => {
     setRowData(customers);
   }, [customers]);
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      try {
+        await deleteCustomer(id);
+        message.success('고객이 성공적으로 삭제되었습니다!');
+      } catch (error) {
+        console.error('고객 삭제 오류:', error);
+        message.error('고객 삭제에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
 
   const columnDefs: ColDef<Customer>[] = [
     {
@@ -62,10 +74,16 @@ const CustomerList = () => {
           <Button buttonColor="info" onClick={() => navigate(`/customers/${params.data.id}`)}>
             상세
           </Button>
+          <Button buttonColor="secondary" onClick={() => navigate(`/customers/${params.data.id}/edit`)}>
+            수정
+          </Button>
+          <Button buttonColor="danger" onClick={() => handleDelete(params.data.id)}>
+            삭제
+          </Button>
         </Space>
       ),
-      minWidth: 100,
-      maxWidth: 150,
+      minWidth: 150,
+      maxWidth: 200,
       cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
     },
   ];
