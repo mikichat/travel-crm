@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Reservation } from '@/types/reservation';
 
+const API_BASE_URL = 'http://localhost:3001/api';
+
 export function useReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ export function useReservations() {
   const fetchReservations = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/reservations');
+      const response = await fetch(`${API_BASE_URL}/reservations`);
       if (!response.ok) {
         throw new Error('예약 조회 실패');
       }
@@ -28,7 +30,7 @@ export function useReservations() {
   // 예약 등록
   const addReservation = async (reservation: Omit<Reservation, 'id' | 'createdAt'>) => {
     try {
-      const response = await fetch('/api/reservations', {
+      const response = await fetch(`${API_BASE_URL}/reservations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +55,7 @@ export function useReservations() {
   // 특정 예약 조회
   const getReservationById = async (id: number) => {
     try {
-      const response = await fetch(`/api/reservations/${id}`);
+      const response = await fetch(`${API_BASE_URL}/reservations/${id}`);
       if (!response.ok) {
         throw new Error('예약 조회 실패');
       }
@@ -68,7 +70,7 @@ export function useReservations() {
   // 예약 수정
   const updateReservation = async (id: number, updatedReservation: Partial<Omit<Reservation, 'id' | 'createdAt'>>) => {
     try {
-      const response = await fetch(`/api/reservations/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +99,7 @@ export function useReservations() {
   // 예약 삭제
   const deleteReservation = async (id: number) => {
     try {
-      const response = await fetch(`/api/reservations/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
         method: 'DELETE',
       });
 

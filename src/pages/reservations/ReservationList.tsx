@@ -23,20 +23,30 @@ const ReservationList = () => {
   const gridRef = useRef<AgGridReact>(null);
 
   const [rowData, setRowData] = useState<Reservation[]>([]);
+  const [search, setSearch] = useState('');
+  const [managerFilter, setManagerFilter] = useState('');
+  const [regionFilter, setRegionFilter] = useState('');
+
+  // 고유 담당자/지역 목록 추출
+  const managerOptions = Array.from(new Set(reservations.map(r => r.manager))).filter(Boolean);
+  const regionOptions = Array.from(new Set(reservations.map(r => r.region))).filter(Boolean);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const searchQuery = params.get('search');
-
-    if (searchQuery) {
-      const filteredReservations = reservations.filter(r =>
-        r.reservationMaker.toLowerCase().includes(searchQuery.toLowerCase())
+    let filtered = reservations;
+    if (search) {
+      filtered = filtered.filter(r =>
+        r.reservationMaker.toLowerCase().includes(search.toLowerCase()) ||
+        r.title.toLowerCase().includes(search.toLowerCase())
       );
-      setRowData(filteredReservations);
-    } else {
-      setRowData(reservations);
     }
-  }, [reservations, location.search]);
+    if (managerFilter) {
+      filtered = filtered.filter(r => r.manager === managerFilter);
+    }
+    if (regionFilter) {
+      filtered = filtered.filter(r => r.region === regionFilter);
+    }
+    setRowData(filtered);
+  }, [reservations, search, managerFilter, regionFilter]);
 
   const columnDefs: ColDef<Reservation>[] = [
     {
@@ -146,11 +156,42 @@ const ReservationList = () => {
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-lightViolet min-h-screen">
       <SectionCard label="예약목록">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h2 className="text-3xl font-bold text-primary mb-4 sm:mb-0">예약 목록</h2>
-          <Button onClick={() => navigate('/reservations/create')} buttonColor="primary">
-            예약 등록
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
+            <input
+              type="text"
+              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              placeholder="예약자명/여행제목 검색"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ minWidth: 160 }}
+            />
+            <select
+              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              value={managerFilter}
+              onChange={e => setManagerFilter(e.target.value)}
+            >
+              <option value="">담당자 전체</option>
+              {managerOptions.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <select
+              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              value={regionFilter}
+              onChange={e => setRegionFilter(e.target.value)}
+            >
+              <option value="">지역 전체</option>
+              {regionOptions.map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+            <Button onClick={() => { setSearch(''); setManagerFilter(''); setRegionFilter(''); }} buttonColor="light" className="ml-1">초기화</Button>
+            <Button onClick={() => navigate('/reservations/create')} buttonColor="primary" className="ml-1">
+              예약 등록
+            </Button>
+          </div>
         </div>
         <div className="ag-theme-quartz" style={{ height: 500 }}>
           <AgGridReact

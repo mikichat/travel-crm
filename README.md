@@ -1,6 +1,6 @@
 # 🧳 소규모 여행사 CRM 시스템
 
-React + TypeScript + Vite + MariaDB 기반의 소규모 여행사 맞춤 일정 및 견적 관리 시스템입니다.
+React + TypeScript + Vite + Node.js + Express + MariaDB 기반의 소규모 여행사 맞춤 일정 및 견적 관리 시스템입니다.
 
 ## 🏗 기술 스택
 
@@ -8,29 +8,13 @@ React + TypeScript + Vite + MariaDB 기반의 소규모 여행사 맞춤 일정 
 |------------|----------------------------------------|
 | 프론트엔드 | React, TypeScript, Vite, Tailwind CSS |
 | 백엔드     | Node.js + Express + TypeScript        |
-| 데이터베이스 | MariaDB, Axios                       |
+| 데이터베이스 | MariaDB (백엔드)                     |
 | 개발 도구  | Cursor, VSCode, Git                   |
 
 ## 📁 프로젝트 구조
 
 ```
-travel-crm/
-├── 📁 backend/                          # 백엔드 서버
-│   ├── 📁 src/
-│   │   ├── 📁 config/                   # 데이터베이스 설정
-│   │   │   ├── create.sql              # 데이터베이스 스키마
-│   │   │   └── db.ts                   # 데이터베이스 연결 설정
-│   │   ├── 📁 controllers/             # 컨트롤러
-│   │   │   └── index.ts                # 컨트롤러 인덱스
-│   │   ├── 📁 models/                  # 데이터 모델
-│   │   │   └── user.ts                 # 사용자 모델
-│   │   ├── 📁 routes/                  # API 라우트
-│   │   │   └── index.ts                # 라우트 인덱스
-│   │   └── app.ts                      # Express 앱 설정
-│   ├── package.json                    # 백엔드 의존성
-│   ├── package-lock.json
-│   └── tsconfig.json                   # TypeScript 설정
-│
+📁 travel-crm/                           # 프론트엔드 프로젝트
 ├── 📁 src/                             # 프론트엔드 소스 코드
 │   ├── 📁 assets/                      # 정적 자산
 │   │   └── react.svg                   # React 로고
@@ -84,7 +68,6 @@ travel-crm/
 │
 ├── 📁 .cursor/                         # Cursor IDE 설정
 ├── 📁 .git/                            # Git 저장소
-├── 📁 .git_/                           # Git 관련 파일
 ├── 📁 .vscode/                         # VS Code 설정
 ├── 📁 node_modules/                    # 의존성 모듈
 │
@@ -92,13 +75,11 @@ travel-crm/
 ├── .cursorrules                        # Cursor 규칙
 ├── .gitattributes                      # Git 속성
 ├── .gitignore                          # Git 무시 파일
-├── .gitignore-                         # 추가 Git 무시 파일
 ├── eslint.config.js                    # ESLint 설정
 ├── index.html                          # HTML 템플릿
 ├── LICENSE                             # 라이선스
 ├── package.json                        # 프로젝트 의존성
 ├── package-lock.json                   # 의존성 잠금 파일
-├── package - 복사본.json               # 패키지 복사본
 ├── postcss.config.cjs                  # PostCSS 설정
 ├── README.md                           # 프로젝트 문서
 ├── tailwind.config.js                  # Tailwind CSS 설정
@@ -106,6 +87,26 @@ travel-crm/
 ├── tsconfig.json                       # 루트 TypeScript 설정
 ├── tsconfig.node.json                  # Node.js TypeScript 설정
 └── vite.config.ts                      # Vite 설정
+│
+📁 travel-crm-backend/                  # 백엔드 프로젝트 (별도 폴더)
+├── 📁 src/                             # 백엔드 소스 코드
+│   ├── 📁 config/                      # 데이터베이스 설정
+│   │   ├── create.sql                  # 데이터베이스 스키마
+│   │   └── db.ts                       # 데이터베이스 연결 설정
+│   ├── 📁 controllers/                 # 컨트롤러
+│   │   └── index.ts                    # 컨트롤러 인덱스
+│   ├── 📁 models/                      # 데이터 모델
+│   │   └── user.ts                     # 사용자 모델
+│   ├── 📁 routes/                      # API 라우트
+│   │   └── index.ts                    # 라우트 인덱스
+│   └── app.ts                          # Express 앱 설정
+├── 📁 data/                            # 데이터베이스 파일
+│   └── travel_crm.db                   # SQLite 데이터베이스
+├── package.json                        # 백엔드 의존성
+├── package-lock.json                   # 의존성 잠금 파일
+├── tsconfig.json                       # TypeScript 설정
+├── .env                                # 환경변수 설정
+└── README.md                           # 백엔드 문서
 ```
 
 ## 📂 주요 디렉토리 설명
@@ -121,16 +122,16 @@ travel-crm/
 - **dashboard/**: 대시보드 및 통계 페이지
 
 ### `src/hooks/`
-- **useCustomers.ts**: 고객 관리 CRUD 훅
-- **useSchedules.ts**: 일정 관리 CRUD 훅 (수정 기능 포함)
-- **useReservations.ts**: 예약 관리 CRUD 훅
+- **useCustomers.ts**: 고객 관리 CRUD 훅 (백엔드 API 연동)
+- **useSchedules.ts**: 일정 관리 CRUD 훅 (백엔드 API 연동)
+- **useReservations.ts**: 예약 관리 CRUD 훅 (백엔드 API 연동)
 
 ### `src/types/`
 - **customer.ts**: 고객 관련 타입
 - **schedule.ts**: 일정 관련 타입
 - **reservation.ts**: 예약 관련 타입
 
-### `backend/src/`
+### `travel-crm-backend/src/`
 - **config/**: 데이터베이스 설정 및 스키마
 - **controllers/**: API 컨트롤러
 - **models/**: 데이터 모델
@@ -150,10 +151,19 @@ travel-crm/
 
 ## ⚙️ 환경 설정
 
-### `.env` 파일 예시
+### 프론트엔드 `.env` 파일 예시
 ```env
-REACT_APP_API_URL=http://localhost:3001/api
-REACT_APP_APP_NAME=Travel CRM
+VITE_API_URL=http://localhost:3001/api
+VITE_APP_NAME=Travel CRM
+```
+
+### 백엔드 `.env` 파일 예시
+```env
+PORT=3001
+DB_HOST=192.168.0.2
+DB_USER=travel
+DB_PASSWORD=travel
+DB_NAME=travel
 ```
 
 ### Tailwind CSS 설정
@@ -184,12 +194,20 @@ module.exports = {
 - `src/pages/`: 모든 페이지 Tailwind CSS 컴포넌트 활용
 - `src/hooks/useSchedules.ts`: 일정 수정(`updateSchedule`) 기능 추가
 - `src/pages/schedules/ScheduleEdit.tsx`: 새로운 일정 수정 페이지 추가
+- **예약 검색/필터 기능**: 예약자명, 담당자, 지역별 실시간 검색 및 필터링
 
 ## 🔧 개발 가이드
 
+### API 연동
+- **백엔드 서버**: `http://localhost:3001`에서 실행
+- **API 엔드포인트**: `http://localhost:3001/api`
+- **프론트엔드**: 모든 훅에서 백엔드 API로 직접 요청
+- **CORS**: 백엔드에서 CORS 설정으로 프론트엔드 접근 허용
+
 ### 데이터베이스 연동
-- MariaDB와의 연동은 백엔드(Node.js + Express)에서 API를 통해 처리
-- 프론트엔드에서는 Axios를 사용하여 API 호출
+- **MariaDB**: 프로덕션 환경용 (백엔드 설정)
+- **SQLite**: 개발 환경용 (로컬 파일 기반)
+- **자동 초기화**: 백엔드 서버 시작 시 테이블 및 샘플 데이터 자동 생성
 
 ### 스타일링 주의사항
 > **참고**: `src/App.css` 파일에 불필요한 스타일이 포함되어 있을 수 있습니다. 
@@ -206,12 +224,12 @@ module.exports = {
 
 - **Node.js**: 18.0.0 이상
 - **npm**: 9.0.0 이상
-- **MariaDB/MySQL**: 데이터베이스 서버
+- **MariaDB/MySQL**: 데이터베이스 서버 (선택사항)
 - **Git**: 버전 관리
 
 ### 🔧 프론트엔드 실행 (React + Vite)
 
-1. **프로젝트 루트로 이동**
+1. **프론트엔드 프로젝트로 이동**
 ```bash
 cd travel-crm
 ```
@@ -236,11 +254,11 @@ npm run dev
 - 프론트엔드: http://localhost:5173
 - Vite 개발 서버가 자동으로 실행됩니다
 
-### 🔧 백엔드 실행 (Node.js + Express + SQLite)
+### 🔧 백엔드 실행 (Node.js + Express + MariaDB/SQLite)
 
-1. **백엔드 디렉토리로 이동**
+1. **백엔드 프로젝트로 이동**
 ```bash
-cd backend
+cd ../travel-crm-backend
 ```
 
 2. **의존성 설치**
@@ -248,10 +266,14 @@ cd backend
 npm install
 ```
 
-3. **환경변수 설정** (선택사항)
+3. **환경변수 설정**
 ```bash
-# .env 파일 생성 (필요한 경우)
+# .env 파일 생성
 echo "PORT=3001" > .env
+echo "DB_HOST=192.168.0.2" >> .env
+echo "DB_USER=travel" >> .env
+echo "DB_PASSWORD=travel" >> .env
+echo "DB_NAME=travel" >> .env
 ```
 
 4. **백엔드 서버 실행**
@@ -264,20 +286,18 @@ npm start
 - API 엔드포인트: http://localhost:3001/api
 - 상태 확인: http://localhost:3001/api/health
 
-### 🗄️ 데이터베이스 (SQLite)
+### 🗄️ 데이터베이스
 
-이 프로젝트는 **SQLite**를 사용하여 간단하고 빠른 설정을 제공합니다.
+#### MariaDB (프로덕션)
+- **호스트**: 192.168.0.2
+- **사용자**: travel
+- **데이터베이스**: travel
+- **자동 연결**: 백엔드 서버 시작 시 자동 연결
 
-**SQLite 장점:**
-- ✅ **설치 불필요**: 별도 데이터베이스 서버 설치 없음
-- ✅ **파일 기반**: `data/travel_crm.db` 파일 하나로 모든 데이터 관리
-- ✅ **자동 초기화**: 서버 시작 시 자동으로 테이블 생성
-- ✅ **Zero Configuration**: 설정 파일만 있으면 바로 사용
-
-**데이터베이스 파일 위치:**
-```
-backend/data/travel_crm.db
-```
+#### SQLite (개발)
+- **파일 위치**: `travel-crm-backend/data/travel_crm.db`
+- **자동 생성**: 서버 시작 시 자동으로 테이블 생성
+- **샘플 데이터**: 자동으로 기본 데이터 입력
 
 **자동 생성되는 테이블:**
 - `users` - 사용자 정보
@@ -289,7 +309,7 @@ backend/data/travel_crm.db
 
 **터미널 1 (백엔드)**
 ```bash
-cd backend
+cd ../travel-crm-backend
 npm install
 npm start
 ```
@@ -324,22 +344,40 @@ npm test             # 테스트 실행
 - **포트 충돌**: `npm run dev -- --port 3000` (다른 포트 사용)
 - **의존성 문제**: `rm -rf node_modules package-lock.json && npm install`
 - **TypeScript 오류**: `npm run type-check`로 타입 검사
+- **API 연결 실패**: 백엔드 서버가 실행 중인지 확인
 
 #### 백엔드 문제
 - **데이터베이스 연결 실패**: `.env` 파일의 데이터베이스 설정 확인
 - **포트 충돌**: `PORT=3002 npm start` (다른 포트 사용)
 - **TypeScript 컴파일 오류**: `npx tsc --noEmit`로 타입 검사
+- **CORS 오류**: 프론트엔드 도메인이 허용되었는지 확인
 
 ### 🌐 접속 정보
 
 - **프론트엔드**: http://localhost:5173
 - **백엔드 API**: http://localhost:3001
-- **API 문서**: http://localhost:3001/api (개발 중)
+- **API 상태 확인**: http://localhost:3001/api/health
+- **API 엔드포인트**: http://localhost:3001/api
 
 ## 📋 주요 기능
 
-- 👥 **고객 관리**: 고객 정보 등록, 수정, 조회
-- 📅 **일정 관리**: 여행 일정 생성, 수정, 관리
-- 🎫 **예약 관리**: 예약 생성, 수정, 상태 관리
+- 👥 **고객 관리**: 고객 정보 등록, 수정, 조회, 삭제
+- 📅 **일정 관리**: 여행 일정 생성, 수정, 관리, 삭제
+- 🎫 **예약 관리**: 예약 생성, 수정, 상태 관리, 삭제
+- 🔍 **검색/필터**: 예약자명, 담당자, 지역별 실시간 검색 및 필터링
 - 📊 **대시보드**: 통계 및 현황 조회
-- 🔐 **인증**: 로그인, 회원가입# 자동 push 테스트
+- 🔐 **인증**: 로그인, 회원가입 (개발 중)
+
+## 🔄 최근 업데이트
+
+### 예약 관리 기능 개선
+- ✅ **검색/필터 기능 추가**: 예약자명, 담당자, 지역별 실시간 검색
+- ✅ **백엔드 API 연동**: 프론트엔드에서 백엔드 서버로 직접 API 요청
+- ✅ **데이터베이스 연결**: MariaDB 및 SQLite 지원
+- ✅ **자동 초기화**: 서버 시작 시 테이블 및 샘플 데이터 자동 생성
+
+### 기술 스택 업데이트
+- ✅ **프론트엔드**: React + TypeScript + Vite + Tailwind CSS
+- ✅ **백엔드**: Node.js + Express + TypeScript
+- ✅ **데이터베이스**: MariaDB (프로덕션) + SQLite (개발)
+- ✅ **API 통신**: Fetch API를 통한 RESTful API 연동

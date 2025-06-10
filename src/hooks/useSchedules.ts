@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Schedule } from '@/types/schedule';
 
+const API_BASE_URL = 'http://localhost:3001/api';
+
 export function useSchedules() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +12,7 @@ export function useSchedules() {
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/schedules');
+      const response = await fetch(`${API_BASE_URL}/schedules`);
       if (!response.ok) {
         throw new Error('일정 조회 실패');
       }
@@ -28,7 +30,7 @@ export function useSchedules() {
   // 일정 등록
   const addSchedule = async (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
     try {
-      const response = await fetch('/api/schedules', {
+      const response = await fetch(`${API_BASE_URL}/schedules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +55,7 @@ export function useSchedules() {
   // 특정 일정 조회
   const getScheduleById = async (id: number) => {
     try {
-      const response = await fetch(`/api/schedules/${id}`);
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
       if (!response.ok) {
         throw new Error('일정 조회 실패');
       }
@@ -68,7 +70,7 @@ export function useSchedules() {
   // 일정 수정
   const updateSchedule = async (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
     try {
-      const response = await fetch(`/api/schedules/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +99,7 @@ export function useSchedules() {
   // 일정 삭제
   const deleteSchedule = async (id: number) => {
     try {
-      const response = await fetch(`/api/schedules/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
         method: 'DELETE',
       });
 
