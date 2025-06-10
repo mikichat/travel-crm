@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Schedule } from '../types/schedule';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import type { Schedule } from '@/types/schedule';
 
 export function useSchedules() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -12,7 +10,7 @@ export function useSchedules() {
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/schedules`);
+      const response = await fetch('/api/schedules');
       if (!response.ok) {
         throw new Error('일정 조회 실패');
       }
@@ -30,7 +28,7 @@ export function useSchedules() {
   // 일정 등록
   const addSchedule = async (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/schedules`, {
+      const response = await fetch('/api/schedules', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +53,7 @@ export function useSchedules() {
   // 특정 일정 조회
   const getScheduleById = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
+      const response = await fetch(`/api/schedules/${id}`);
       if (!response.ok) {
         throw new Error('일정 조회 실패');
       }
@@ -70,7 +68,7 @@ export function useSchedules() {
   // 일정 수정
   const updateSchedule = async (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+      const response = await fetch(`/api/schedules/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +97,7 @@ export function useSchedules() {
   // 일정 삭제
   const deleteSchedule = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+      const response = await fetch(`/api/schedules/${id}`, {
         method: 'DELETE',
       });
 

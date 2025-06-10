@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Customer } from '../types/customer';
-
-const API_BASE_URL = 'http://localhost:3001/api';
+import type { Customer } from '@/types/customer';
 
 export function useCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -12,7 +10,7 @@ export function useCustomers() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/customers`);
+      const response = await fetch('/api/customers');
       if (!response.ok) {
         throw new Error('고객 조회 실패');
       }
@@ -28,9 +26,9 @@ export function useCustomers() {
   };
 
   // 고객 등록
-  const addCustomer = async (customer: Omit<Customer, 'id' | 'createdAt'>) => {
+  const addCustomer = async (customer: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/customers`, {
+      const response = await fetch('/api/customers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +53,7 @@ export function useCustomers() {
   // 특정 고객 조회
   const getCustomerById = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/customers/${id}`);
+      const response = await fetch(`/api/customers/${id}`);
       if (!response.ok) {
         throw new Error('고객 조회 실패');
       }
@@ -68,9 +66,9 @@ export function useCustomers() {
   };
 
   // 고객 수정
-  const updateCustomer = async (id: number, updatedCustomer: Partial<Omit<Customer, 'id' | 'createdAt'>>) => {
+  const updateCustomer = async (id: number, updatedCustomer: Partial<Omit<Customer, 'id' | 'created_at' | 'updated_at'>>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+      const response = await fetch(`/api/customers/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +97,7 @@ export function useCustomers() {
   // 고객 삭제
   const deleteCustomer = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+      const response = await fetch(`/api/customers/${id}`, {
         method: 'DELETE',
       });
 
