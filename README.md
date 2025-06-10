@@ -254,7 +254,7 @@ npm run dev
 - 프론트엔드: http://localhost:5173
 - Vite 개발 서버가 자동으로 실행됩니다
 
-### 🔧 백엔드 실행 (Node.js + Express + MariaDB/SQLite)
+### 🔧 백엔드 실행 (Node.js + Express + MariaDB)
 
 1. **백엔드 프로젝트로 이동**
 ```bash
@@ -293,11 +293,6 @@ npm start
 - **사용자**: travel
 - **데이터베이스**: travel
 - **자동 연결**: 백엔드 서버 시작 시 자동 연결
-
-#### SQLite (개발)
-- **파일 위치**: `travel-crm-backend/data/travel_crm.db`
-- **자동 생성**: 서버 시작 시 자동으로 테이블 생성
-- **샘플 데이터**: 자동으로 기본 데이터 입력
 
 **자동 생성되는 테이블:**
 - `users` - 사용자 정보
@@ -373,11 +368,11 @@ npm test             # 테스트 실행
 ### 예약 관리 기능 개선
 - ✅ **검색/필터 기능 추가**: 예약자명, 담당자, 지역별 실시간 검색
 - ✅ **백엔드 API 연동**: 프론트엔드에서 백엔드 서버로 직접 API 요청
-- ✅ **데이터베이스 연결**: MariaDB 및 SQLite 지원
+- ✅ **데이터베이스 연결**: MariaDB 지원
 - ✅ **자동 초기화**: 서버 시작 시 테이블 및 샘플 데이터 자동 생성
 
 ### 기술 스택 업데이트
 - ✅ **프론트엔드**: React + TypeScript + Vite + Tailwind CSS
 - ✅ **백엔드**: Node.js + Express + TypeScript
-- ✅ **데이터베이스**: MariaDB (프로덕션) + SQLite (개발)
+- ✅ **데이터베이스**: MariaDB (프로덕션)
 - ✅ **API 통신**: Fetch API를 통한 RESTful API 연동
