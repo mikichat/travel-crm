@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Reservation } from '@/types/reservation';
 
 const API_BASE_URL = 'http://localhost:3001/api';
@@ -9,7 +9,7 @@ export function useReservations() {
   const [error, setError] = useState<string | null>(null);
 
   // 예약 목록 조회
-  const fetchReservations = async () => {
+  const fetchReservations = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/reservations`);
@@ -25,10 +25,10 @@ export function useReservations() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // 예약 등록
-  const addReservation = async (reservation: Omit<Reservation, 'id' | 'createdAt'>) => {
+  const addReservation = useCallback(async (reservation: Omit<Reservation, 'id' | 'createdAt'>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/reservations`, {
         method: 'POST',
@@ -50,10 +50,10 @@ export function useReservations() {
       console.error('예약 등록 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 특정 예약 조회
-  const getReservationById = async (id: number) => {
+  const getReservationById = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/reservations/${id}`);
       if (!response.ok) {
@@ -65,10 +65,10 @@ export function useReservations() {
       console.error('예약 조회 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 예약 수정
-  const updateReservation = async (id: number, updatedReservation: Partial<Omit<Reservation, 'id' | 'createdAt'>>) => {
+  const updateReservation = useCallback(async (id: number, updatedReservation: Partial<Omit<Reservation, 'id' | 'createdAt'>>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
         method: 'PUT',
@@ -94,10 +94,10 @@ export function useReservations() {
       console.error('예약 수정 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 예약 삭제
-  const deleteReservation = async (id: number) => {
+  const deleteReservation = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/reservations/${id}`, {
         method: 'DELETE',
@@ -113,12 +113,12 @@ export function useReservations() {
       console.error('예약 삭제 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 컴포넌트 마운트 시 예약 목록 조회
   useEffect(() => {
     fetchReservations();
-  }, []);
+  }, [fetchReservations]);
 
   return { 
     reservations, 

@@ -3,15 +3,9 @@ import { CustomerList, CustomerCreate, CustomerDetail, CustomerEdit } from './pa
 import { ScheduleList, ScheduleCreate, ScheduleDetail, ScheduleEdit } from './pages/schedules';
 import { Dashboard } from './pages/dashboard';
 import { ReservationList, ReservationCreate, ReservationDetail, ReservationEdit } from './pages/reservations';
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import MainLayout from './components/layout/MainLayout';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <BrowserRouter>
       <MainLayout>
@@ -32,18 +26,8 @@ function App() {
           <Route path="/reservations/:id/edit" element={<ReservationEdit />} />
         </Routes>
       </MainLayout>
-      
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-       
-      </div>
-      <p className="read-the-docs">
-      © 2025 Tour Booking System, Inc.
-      </p>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

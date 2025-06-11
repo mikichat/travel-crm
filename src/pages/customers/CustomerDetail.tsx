@@ -25,7 +25,7 @@ const CustomerDetail = () => {
       }
     };
     fetchCustomer();
-  }, [id, getCustomerById, navigate]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!id) return;

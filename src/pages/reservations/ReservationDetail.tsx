@@ -34,7 +34,7 @@ const ReservationDetail = () => {
     };
 
     fetchReservation();
-  }, [id, getReservationById]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (!id) return;

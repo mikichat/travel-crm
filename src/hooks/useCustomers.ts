@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Customer } from '@/types/customer';
 
 const API_BASE_URL = 'http://localhost:3001/api';
@@ -9,7 +9,7 @@ export function useCustomers() {
   const [error, setError] = useState<string | null>(null);
 
   // 고객 목록 조회
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/customers`);
@@ -25,10 +25,10 @@ export function useCustomers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // 고객 등록
-  const addCustomer = async (customer: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => {
+  const addCustomer = useCallback(async (customer: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/customers`, {
         method: 'POST',
@@ -50,10 +50,10 @@ export function useCustomers() {
       console.error('고객 등록 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 특정 고객 조회
-  const getCustomerById = async (id: number) => {
+  const getCustomerById = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/customers/${id}`);
       if (!response.ok) {
@@ -65,10 +65,10 @@ export function useCustomers() {
       console.error('고객 조회 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 고객 수정
-  const updateCustomer = async (id: number, updatedCustomer: Partial<Omit<Customer, 'id' | 'created_at' | 'updated_at'>>) => {
+  const updateCustomer = useCallback(async (id: number, updatedCustomer: Partial<Omit<Customer, 'id' | 'created_at' | 'updated_at'>>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
         method: 'PUT',
@@ -94,10 +94,10 @@ export function useCustomers() {
       console.error('고객 수정 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 고객 삭제
-  const deleteCustomer = async (id: number) => {
+  const deleteCustomer = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
         method: 'DELETE',
@@ -113,12 +113,12 @@ export function useCustomers() {
       console.error('고객 삭제 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 컴포넌트 마운트 시 고객 목록 조회
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [fetchCustomers]);
 
   return { 
     customers, 

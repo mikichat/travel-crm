@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Schedule } from '@/types/schedule';
 
 const API_BASE_URL = 'http://localhost:3001/api';
@@ -9,7 +9,7 @@ export function useSchedules() {
   const [error, setError] = useState<string | null>(null);
 
   // 일정 목록 조회
-  const fetchSchedules = async () => {
+  const fetchSchedules = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/schedules`);
@@ -25,10 +25,10 @@ export function useSchedules() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // 일정 등록
-  const addSchedule = async (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
+  const addSchedule = useCallback(async (schedule: Omit<Schedule, 'id' | 'createdAt'>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/schedules`, {
         method: 'POST',
@@ -50,10 +50,10 @@ export function useSchedules() {
       console.error('일정 등록 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 특정 일정 조회
-  const getScheduleById = async (id: number) => {
+  const getScheduleById = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
       if (!response.ok) {
@@ -65,10 +65,10 @@ export function useSchedules() {
       console.error('일정 조회 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 일정 수정
-  const updateSchedule = async (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
+  const updateSchedule = useCallback(async (id: number, updatedSchedule: Partial<Omit<Schedule, 'id' | 'createdAt'>>) => {
     try {
       const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
         method: 'PUT',
@@ -94,10 +94,10 @@ export function useSchedules() {
       console.error('일정 수정 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 일정 삭제
-  const deleteSchedule = async (id: number) => {
+  const deleteSchedule = useCallback(async (id: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
         method: 'DELETE',
@@ -113,12 +113,12 @@ export function useSchedules() {
       console.error('일정 삭제 오류:', err);
       throw err;
     }
-  };
+  }, []);
 
   // 컴포넌트 마운트 시 일정 목록 조회
   useEffect(() => {
     fetchSchedules();
-  }, []);
+  }, [fetchSchedules]);
 
   return { 
     schedules, 
