@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space } from 'antd';
+import { Space, Input } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -24,12 +24,6 @@ const ReservationList = () => {
 
   const [rowData, setRowData] = useState<Reservation[]>([]);
   const [search, setSearch] = useState('');
-  const [managerFilter, setManagerFilter] = useState('');
-  const [regionFilter, setRegionFilter] = useState('');
-
-  // 고유 담당자/지역 목록 추출
-  const managerOptions = Array.from(new Set(reservations.map(r => r.manager))).filter(Boolean);
-  const regionOptions = Array.from(new Set(reservations.map(r => r.region))).filter(Boolean);
 
   useEffect(() => {
     let filtered = reservations;
@@ -39,14 +33,8 @@ const ReservationList = () => {
         r.title.toLowerCase().includes(search.toLowerCase())
       );
     }
-    if (managerFilter) {
-      filtered = filtered.filter(r => r.manager === managerFilter);
-    }
-    if (regionFilter) {
-      filtered = filtered.filter(r => r.region === regionFilter);
-    }
     setRowData(filtered);
-  }, [reservations, search, managerFilter, regionFilter]);
+  }, [reservations, search]);
 
   const columnDefs: ColDef<Reservation>[] = [
     {
@@ -159,35 +147,18 @@ const ReservationList = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h2 className="text-3xl font-bold text-primary mb-4 sm:mb-0">예약 목록</h2>
           <div className="flex flex-col sm:flex-row gap-2 items-center w-full sm:w-auto">
-            <input
-              type="text"
-              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              placeholder="예약자명/여행제목 검색"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ minWidth: 160 }}
-            />
-            <select
-              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              value={managerFilter}
-              onChange={e => setManagerFilter(e.target.value)}
-            >
-              <option value="">담당자 전체</option>
-              {managerOptions.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-            <select
-              className="input input-bordered px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              value={regionFilter}
-              onChange={e => setRegionFilter(e.target.value)}
-            >
-              <option value="">지역 전체</option>
-              {regionOptions.map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-            <Button onClick={() => { setSearch(''); setManagerFilter(''); setRegionFilter(''); }} buttonColor="light" className="ml-1">초기화</Button>
+            <div style={{ padding: '16px', borderBottom: '1px solid rgb(240, 240, 240)' }}>
+              <Input.Search
+                placeholder="예약자 검색 (예약 관리)"
+                allowClear
+                enterButton
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onSearch={value => setSearch(value)}
+                style={{ width: '100%' }}
+              />
+            </div>
+            
             <Button onClick={() => navigate('/reservations/create')} buttonColor="primary" className="ml-1">
               예약 등록
             </Button>

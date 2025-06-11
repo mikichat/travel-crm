@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { CustomerList, CustomerCreate, CustomerDetail } from './pages/customers';
+import { CustomerList, CustomerCreate, CustomerDetail, CustomerEdit } from './pages/customers';
 import { ScheduleList, ScheduleCreate, ScheduleDetail, ScheduleEdit } from './pages/schedules';
 import { Dashboard } from './pages/dashboard';
 import { ReservationList, ReservationCreate, ReservationDetail, ReservationEdit } from './pages/reservations';
@@ -21,6 +21,7 @@ function App() {
           <Route path="/customers" element={<CustomerList />} />
           <Route path="/customers/create" element={<CustomerCreate />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />
+          <Route path="/customers/:id/edit" element={<CustomerEdit />} />
           <Route path="/schedules" element={<ScheduleList />} />
           <Route path="/schedules/create" element={<ScheduleCreate />} />
           <Route path="/schedules/:id" element={<ScheduleDetail />} />
