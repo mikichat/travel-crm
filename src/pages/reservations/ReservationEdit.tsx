@@ -24,13 +24,31 @@ const ReservationEdit = () => {
       .then(data => {
         setReservation(data);
         setError(null);
+        
+        // 날짜 형식을 YYYY-MM-DD로 변환
+        const formatDateForInput = (dateString: string) => {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toISOString().split('T')[0];
+        };
+        
+        // 시간 형식을 HH:MM으로 변환
+        const formatTimeForInput = (timeString: string) => {
+          if (!timeString) return '';
+          // 시간 문자열이 이미 HH:MM 형식이면 그대로 반환
+          if (timeString.includes(':')) return timeString;
+          // ISO 문자열이면 시간 부분만 추출
+          const date = new Date(timeString);
+          return date.toTimeString().slice(0, 5);
+        };
+        
         // 폼 데이터 설정
         form.setFieldsValue({
           title: data.title,
           duration: data.duration,
           region: data.region,
-          meetingDate: data.meetingDate,
-          meetingTime: data.meetingTime,
+          meetingDate: formatDateForInput(data.meetingDate),
+          meetingTime: formatTimeForInput(data.meetingTime),
           meetingPlace: data.meetingPlace,
           manager: data.manager,
           reservationMaker: data.reservationMaker || '',
@@ -46,7 +64,7 @@ const ReservationEdit = () => {
         setReservation(null);
       })
       .finally(() => setLoading(false));
-  }, [id, form]);
+  }, [id]);
 
   const onFinish = async (values: any) => {
     try {
