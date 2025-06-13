@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomers } from '../../hooks/useCustomers';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space, message } from 'antd';
+import { Space, message, Checkbox } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -16,11 +16,12 @@ import type { Customer } from '../../types/customer';
 ModuleRegistry.registerModules([ AllCommunityModule ]);
 
 const CustomerList = () => {
-  const { customers, deleteCustomer } = useCustomers();
+  const { customers, deleteCustomer, updateCustomer } = useCustomers();
   const navigate = useNavigate();
 
   const gridRef = useRef<AgGridReact>(null);
   const [rowData, setRowData] = useState<Customer[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setRowData(customers);
@@ -44,6 +45,7 @@ const CustomerList = () => {
       field: 'name',
       sortable: true,
       filter: true,
+      editable: isEditing,
       cellRenderer: (params: any) => (
         <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/customers/${params.data.id}`)}>{params.value}</span>
       ),
@@ -53,12 +55,14 @@ const CustomerList = () => {
       field: 'phone',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '이메일',
       field: 'email',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '등록일',
@@ -92,10 +96,25 @@ const CustomerList = () => {
     flex: 1,
     minWidth: 100,
     resizable: true,
+    singleClickEdit: true,
   };
 
   const onGridReady = (params: any) => {
     // console.log("Grid Ready", params);
+  };
+
+  const onCellValueChanged = async (event: any) => {
+    const { data, colDef, newValue } = event;
+    if (isEditing && colDef.field) {
+      try {
+        const updatedCustomer = { ...data, [colDef.field]: newValue };
+        await updateCustomer(updatedCustomer.id, updatedCustomer);
+        message.success('고객 정보가 성공적으로 업데이트되었습니다!');
+      } catch (error) {
+        console.error('고객 정보 업데이트 오류:', error);
+        message.error('고객 정보 업데이트에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   };
 
   return (
@@ -103,9 +122,14 @@ const CustomerList = () => {
       <SectionCard label="고객목록">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-primary mb-4 sm:mb-0">고객 목록</h2>
-          <Button onClick={() => navigate('/customers/create')} buttonColor="primary">
-            고객 등록
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Checkbox checked={isEditing} onChange={(e) => setIsEditing(e.target.checked)}>
+              수정 모드
+            </Checkbox>
+            <Button onClick={() => navigate('/customers/create')} buttonColor="primary">
+              고객 등록
+            </Button>
+          </div>
         </div>
         <div className="ag-theme-quartz" style={{ height: 500 }}>
           <AgGridReact
@@ -114,6 +138,7 @@ const CustomerList = () => {
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}
+            onCellValueChanged={onCellValueChanged}
             pagination={true}
             paginationPageSize={10}
             paginationPageSizeSelector={[10, 20, 50]}

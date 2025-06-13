@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSchedules } from '../../hooks/useSchedules';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space, message } from 'antd';
+import { Space, message, Checkbox } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -16,11 +16,12 @@ import type { Schedule } from '../../types/schedule';
 ModuleRegistry.registerModules([ AllCommunityModule ]);
 
 const ScheduleList = () => {
-  const { schedules, deleteSchedule } = useSchedules();
+  const { schedules, deleteSchedule, updateSchedule } = useSchedules();
   const navigate = useNavigate();
 
   const gridRef = useRef<AgGridReact>(null);
   const [rowData, setRowData] = useState<Schedule[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setRowData(schedules);
@@ -44,6 +45,7 @@ const ScheduleList = () => {
       field: 'title',
       sortable: true,
       filter: true,
+      editable: isEditing,
       cellRenderer: (params: any) => (
         <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate(`/schedules/${params.data.id}`)}>{params.value}</span>
       ),
@@ -53,6 +55,7 @@ const ScheduleList = () => {
       field: 'date',
       sortable: true,
       filter: true,
+      editable: isEditing,
       valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
     },
     {
@@ -60,6 +63,7 @@ const ScheduleList = () => {
       field: 'customerId',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '등록일',
@@ -93,10 +97,25 @@ const ScheduleList = () => {
     flex: 1,
     minWidth: 100,
     resizable: true,
+    singleClickEdit: true,
   };
 
   const onGridReady = (params: any) => {
     // console.log("Grid Ready", params);
+  };
+
+  const onCellValueChanged = async (event: any) => {
+    const { data, colDef, newValue } = event;
+    if (isEditing && colDef.field) {
+      try {
+        const updatedSchedule = { ...data, [colDef.field]: newValue };
+        await updateSchedule(updatedSchedule.id, updatedSchedule);
+        message.success('일정 정보가 성공적으로 업데이트되었습니다!');
+      } catch (error) {
+        console.error('일정 정보 업데이트 오류:', error);
+        message.error('일정 정보 업데이트에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   };
 
   return (
@@ -104,9 +123,14 @@ const ScheduleList = () => {
       <SectionCard label="일정목록">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-primary mb-4 sm:mb-0">일정 목록</h2>
-          <Button onClick={() => navigate('/schedules/create')} buttonColor="primary">
-            일정 등록
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Checkbox checked={isEditing} onChange={(e) => setIsEditing(e.target.checked)}>
+              수정 모드
+            </Checkbox>
+            <Button onClick={() => navigate('/schedules/create')} buttonColor="primary">
+              일정 등록
+            </Button>
+          </div>
         </div>
         <div className="ag-theme-quartz" style={{ height: 500 }}>
           <AgGridReact
@@ -115,9 +139,10 @@ const ScheduleList = () => {
             columnDefs={columnDefs}
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}
-            pagination={true} // Enable pagination
-            paginationPageSize={10} // Set page size
-            paginationPageSizeSelector={[10, 20, 50]} // Allow page size selection
+            onCellValueChanged={onCellValueChanged}
+            pagination={true}
+            paginationPageSize={10}
+            paginationPageSizeSelector={[10, 20, 50]}
           />
         </div>
       </SectionCard>

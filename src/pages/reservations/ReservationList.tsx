@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useReservations } from '../../hooks/useReservations';
 import Button from '../../components/ui/Button';
 import SectionCard from '../../components/ui/SectionCard';
-import { Space, Input } from 'antd';
+import { Space, Input, Checkbox } from 'antd';
 // AG Grid
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS for the grid - Removed to use Theming API
@@ -11,6 +11,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'; // Import ModuleRegistry and AllCommunityModule
 import type { ColDef } from 'ag-grid-community';
 import type { Reservation } from '../../types/reservation';
+import { message } from 'antd';
 
 // Register the required feature modules with the Grid
 ModuleRegistry.registerModules([ AllCommunityModule ]);
@@ -24,6 +25,7 @@ const ReservationList = () => {
 
   const [rowData, setRowData] = useState<Reservation[]>([]);
   const [search, setSearch] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     let filtered = reservations;
@@ -42,7 +44,7 @@ const ReservationList = () => {
       field: 'title',
       sortable: true,
       filter: true,
-      editable: true, // Enable in-cell editing
+      editable: isEditing,
       cellRenderer: (params: any) => {
         const handleCellClick = () => {
           if (!params.node.isEditing()) {
@@ -64,18 +66,21 @@ const ReservationList = () => {
       field: 'duration',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '여행 지역',
       field: 'region',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '미팅 일자',
       field: 'meetingDate',
       sortable: true,
       filter: true,
+      editable: isEditing,
       valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
     },
     {
@@ -83,20 +88,21 @@ const ReservationList = () => {
       field: 'manager',
       sortable: true,
       filter: true,
+      editable: isEditing,
     },
     {
       headerName: '예약자',
       field: 'reservationMaker',
       sortable: true,
       filter: true,
-      editable: true,
+      editable: isEditing,
     },
     {
       headerName: '예약자연락처',
       field: 'reservationMakerContact',
       sortable: true,
       filter: true,
-      editable: true,
+      editable: isEditing,
     },
     {
       headerName: '동작',
@@ -125,6 +131,7 @@ const ReservationList = () => {
     flex: 1,
     minWidth: 100,
     resizable: true,
+    singleClickEdit: true,
   };
 
   const onGridReady = (params: any) => {
@@ -136,8 +143,14 @@ const ReservationList = () => {
     const updatedField = event.colDef.field;
     const newValue = event.newValue;
 
-    if (updatedField && newValue !== undefined) {
-      await updateReservation(id, { [updatedField]: newValue });
+    if (isEditing && updatedField && newValue !== undefined) {
+      try {
+        await updateReservation(id, { [updatedField]: newValue });
+        message.success('예약 정보가 성공적으로 업데이트되었습니다!');
+      } catch (error) {
+        console.error('예약 정보 업데이트 오류:', error);
+        message.error('예약 정보 업데이트에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -158,7 +171,9 @@ const ReservationList = () => {
                 style={{ width: '100%' }}
               />
             </div>
-            
+            <Checkbox checked={isEditing} onChange={(e) => setIsEditing(e.target.checked)} className="ml-2">
+              수정 모드
+            </Checkbox>
             <Button onClick={() => navigate('/reservations/create')} buttonColor="primary" className="ml-1">
               예약 등록
             </Button>
@@ -172,7 +187,7 @@ const ReservationList = () => {
             defaultColDef={defaultColDef}
             onGridReady={onGridReady}
             onCellValueChanged={onCellValueChanged}
-            readOnlyEdit={true}
+            readOnlyEdit={!isEditing}
             pagination={true}
             paginationPageSize={10}
             paginationPageSizeSelector={[10, 20, 50]}
