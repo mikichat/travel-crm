@@ -106,10 +106,29 @@ const ScheduleList = () => {
 
   const onCellValueChanged = async (event: any) => {
     const { data, colDef, newValue } = event;
-    if (isEditing && colDef.field) {
+    let processedValue = newValue; // 새로운 변수로 값 처리
+
+    if (isEditing && colDef.field && processedValue !== undefined) {
       try {
-        const updatedSchedule = { ...data, [colDef.field]: newValue };
-        await updateSchedule(updatedSchedule.id, updatedSchedule);
+        if (colDef.field === 'date') {
+          if (newValue === '' || newValue === null) {
+            message.error(`날짜 필드는 비워둘 수 없습니다. YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+            return; // Empty value not allowed due to NOT NULL constraint
+          }
+
+          const date = new Date(newValue);
+          if (isNaN(date.getTime())) {
+            message.error(`유효하지 않은 날짜 형식입니다. 날짜 필드에 YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+            return; // Invalid date, stop update
+          }
+          // Format to YYYY-MM-DD
+          processedValue = date.getFullYear() + '-' +
+                           String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                           String(date.getDate()).padStart(2, '0');
+        }
+
+        // 변경된 필드와 값만 전송하도록 수정
+        await updateSchedule(data.id, { [colDef.field]: processedValue });
         message.success('일정 정보가 성공적으로 업데이트되었습니다!');
       } catch (error) {
         console.error('일정 정보 업데이트 오류:', error);

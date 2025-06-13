@@ -3,6 +3,8 @@ export interface Reservation {
   title: string;
   duration: string;
   region: string;
+  departureDate: string;
+  arrivalDate: string;
   meetingDate: string;
   meetingTime: string;
   meetingPlace: string;

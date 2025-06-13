@@ -84,6 +84,22 @@ const ReservationList = () => {
       valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
     },
     {
+      headerName: '출발일',
+      field: 'departureDate',
+      sortable: true,
+      filter: true,
+      editable: isEditing,
+      valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
+    },
+    {
+      headerName: '도착일',
+      field: 'arrivalDate',
+      sortable: true,
+      filter: true,
+      editable: isEditing,
+      valueFormatter: params => params.value ? new Date(params.value).toLocaleDateString() : '',
+    },
+    {
       headerName: '담당자',
       field: 'manager',
       sortable: true,
@@ -141,11 +157,29 @@ const ReservationList = () => {
   const onCellValueChanged = async (event: any) => {
     const { id } = event.data;
     const updatedField = event.colDef.field;
-    const newValue = event.newValue;
+    let newValue = event.newValue; // Use newValue directly from event
+    let processedValue = newValue; // Initialize processedValue with newValue
 
     if (isEditing && updatedField && newValue !== undefined) {
       try {
-        await updateReservation(id, { [updatedField]: newValue });
+        if (['meetingDate', 'departureDate', 'arrivalDate'].includes(updatedField)) {
+          if (newValue === '' || newValue === null) {
+            message.error(`${updatedField} 필드는 비워둘 수 없습니다. YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+            return; // Empty value not allowed due to NOT NULL constraint
+          }
+
+          const date = new Date(newValue);
+          if (isNaN(date.getTime())) {
+            message.error(`유효하지 않은 날짜 형식입니다. ${updatedField} 필드에 YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+            return; // Invalid date, stop update
+          }
+          // Format to YYYY-MM-DD
+          processedValue = date.getFullYear() + '-' +
+                           String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                           String(date.getDate()).padStart(2, '0');
+        }
+
+        await updateReservation(id, { [updatedField]: processedValue });
         message.success('예약 정보가 성공적으로 업데이트되었습니다!');
       } catch (error) {
         console.error('예약 정보 업데이트 오류:', error);

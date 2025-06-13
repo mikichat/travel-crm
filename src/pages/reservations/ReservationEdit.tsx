@@ -49,6 +49,8 @@ const ReservationEdit = () => {
           region: data.region,
           meetingDate: formatDateForInput(data.meetingDate),
           meetingTime: formatTimeForInput(data.meetingTime),
+          departureDate: formatDateForInput(data.departureDate),
+          arrivalDate: formatDateForInput(data.arrivalDate),
           meetingPlace: data.meetingPlace,
           manager: data.manager,
           reservationMaker: data.reservationMaker || '',
@@ -68,6 +70,23 @@ const ReservationEdit = () => {
 
   const onFinish = async (values: any) => {
     try {
+      // 날짜 필드 유효성 검사 및 형식 변환
+      const dateFields = ['meetingDate', 'departureDate', 'arrivalDate'];
+      for (const field of dateFields) {
+        if (values[field] === '' || values[field] === null) {
+          message.error(`${field === 'meetingDate' ? '미팅 일자' : field === 'departureDate' ? '출발 일자' : '도착 일자'} 필드는 비워둘 수 없습니다. YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+          return; // Stop form submission if invalid
+        }
+        const date = new Date(values[field]);
+        if (isNaN(date.getTime())) {
+          message.error(`유효하지 않은 날짜 형식입니다. ${field === 'meetingDate' ? '미팅 일자' : field === 'departureDate' ? '출발 일자' : '도착 일자'} 필드에 YYYY-MM-DD 형식으로 날짜를 입력해주세요.`);
+          return; // Stop form submission if invalid
+        }
+        values[field] = date.getFullYear() + '-' +
+                        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(date.getDate()).padStart(2, '0');
+      }
+
       await updateReservation(Number(id), values);
       message.success('예약이 성공적으로 수정되었습니다!');
       navigate(`/reservations/${id}`);
@@ -133,6 +152,22 @@ const ReservationEdit = () => {
               rules={[{ required: true, message: '미팅 시간을 입력하세요!' }]}
             >
               <Input type="time" />
+            </AntdForm.Item>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AntdForm.Item
+              label={<span className="block text-primary font-semibold">출발 일자</span>}
+              name="departureDate"
+              rules={[{ required: true, message: '출발 일자를 입력하세요!' }]}
+            >
+              <Input type="date" />
+            </AntdForm.Item>
+            <AntdForm.Item
+              label={<span className="block text-primary font-semibold">도착 일자</span>}
+              name="arrivalDate"
+              rules={[{ required: true, message: '도착 일자를 입력하세요!' }]}
+            >
+              <Input type="date" />
             </AntdForm.Item>
           </div>
           <AntdForm.Item

@@ -120,6 +120,16 @@ const ReservationDetail = () => {
           </div>
           
           <div>
+            <span className="block text-gray-500 mb-1 font-medium">출발 일자</span>
+            <span>{formatDate(reservation.departureDate)}</span>
+          </div>
+
+          <div>
+            <span className="block text-gray-500 mb-1 font-medium">도착 일자</span>
+            <span>{formatDate(reservation.arrivalDate)}</span>
+          </div>
+          
+          <div>
             <span className="block text-gray-500 mb-1 font-medium">미팅 시간</span>
             <span>{reservation.meetingTime}</span>
           </div>
